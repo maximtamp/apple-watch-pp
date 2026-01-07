@@ -6,16 +6,19 @@
 //
 
 import SwiftUI
+import HealthKit
 
 struct ContentView: View {
+    @EnvironmentObject var manager: HealthKitManager
     @State var timesClicked: Int = 0
         
     var body: some View {
         VStack {
-            Text("Clicked \(timesClicked) times")
-            Button("Click") {
-                timesClicked += 1
+            StepCard(steps: manager.steps)
+            Button("Refresh Steps") {
+                manager.fetchTodaySteps()
             }
+            .buttonStyle(.bordered)
         }
         .padding()
     }
@@ -23,4 +26,5 @@ struct ContentView: View {
 
 #Preview {
     ContentView()
+        .environmentObject(HealthKitManager(preview: true))
 }
