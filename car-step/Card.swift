@@ -7,30 +7,33 @@
 
 import SwiftUI
 
-struct StepCard: View {
-    let steps: Int
+struct Card: View {
+    let value: Int
+    let name: String
+    let image: Image
+    let color: Color
+    
     var body: some View {
         VStack{
             HStack{
                 VStack {
-                    Text("Steps Today")
+                    Text(name)
                 }
                 
                 Spacer()
                 
-                Image(systemName: "figure.walk")
+                image
             }
-            Text("\(steps)")
+            Text("\(value)")
                 .font(.title)
                 .bold()
         }
         .padding()
-        .background(Color.blue.opacity(0.5))
+        .background(color.opacity(0.5))
         .cornerRadius(10)
-        .padding()
     }
 }
 
 #Preview {
-    StepCard(steps: 300)
+    Card(value: 300, name: "Max", image: Image(systemName: "car"), color: .blue)
 }
