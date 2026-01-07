@@ -1,0 +1,17 @@
+//
+//  car_stepApp.swift
+//  car-step
+//
+//  Created by Maxim Tampere on 07/01/2026.
+//
+
+import SwiftUI
+
+@main
+struct car_stepApp: App {
+    var body: some Scene {
+        WindowGroup {
+            ContentView()
+        }
+    }
+}
