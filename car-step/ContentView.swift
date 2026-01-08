@@ -27,4 +27,5 @@ struct ContentView: View {
 #Preview {
     ContentView()
         .environmentObject(HealthKitManager(preview: true))
+        .modelContainer(for: Day.self, inMemory: true)
 }

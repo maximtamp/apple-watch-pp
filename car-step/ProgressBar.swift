@@ -8,19 +8,15 @@
 import SwiftUI
 
 struct ProgressBar: View {
-    let value: Int
-    let maxValue: Int = 10000
-    
-    var progress: Double {
-        Double(value) / Double(maxValue)
-    }
+    let progress: Double
+    let valueText: String
     
     var body: some View {
         VStack {
             HStack {
                 Text("Shape Progress")
                 Spacer()
-                Text("\(value) / \(maxValue)")
+                Text(valueText)
             }
             ProgressView(value: progress)
                 .progressViewStyle(.linear)
@@ -29,5 +25,5 @@ struct ProgressBar: View {
 }
 
 #Preview {
-    ProgressBar(value: 300)
+    ProgressBar(progress: 60.0, valueText: "6000 / 10000")
 }

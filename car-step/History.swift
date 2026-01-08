@@ -6,10 +6,31 @@
 //
 
 import SwiftUI
+import SwiftData
 
 struct History: View {
+    @Query private var days: [Day]
+    
     var body: some View {
-        Text(/*@START_MENU_TOKEN@*/"Hello, World!"/*@END_MENU_TOKEN@*/)
+        List(days, id: \.date) { day in
+            VStack {
+                Text(day.date.formatted(date: .abbreviated, time: .omitted))
+                HStack {
+                    VStack {
+                        Text("Total Steps")
+                        Text("\(day.totalSteps)")
+                    }
+                    VStack {
+                        Text("Claimed Steps")
+                        Text("\(day.claimedSteps)")
+                    }
+                    VStack {
+                        Text("Used Fuel")
+                        Text("\(day.usedFuel)")
+                    }
+                }
+            }
+        }
     }
 }
 

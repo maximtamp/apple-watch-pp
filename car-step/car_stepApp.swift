@@ -15,6 +15,7 @@ struct car_stepApp: App {
     var body: some Scene {
         WindowGroup {
             ContentView()
+                .modelContainer(for: [Day.self, Part.self, Fuel.self])
                 .environmentObject(manager)
                 .onAppear {
                     if manager.isAvailable() {
