@@ -12,19 +12,25 @@ import HealthKit
 @main
 struct car_stepApp: App {
     @StateObject var manager = HealthKitManager()
+    @AppStorage("isOnboarding") var isOnboarding: Bool = true
     var body: some Scene {
         WindowGroup {
-            ContentView()
-                .modelContainer(for: [Day.self, Part.self, Fuel.self])
-                .environmentObject(manager)
-                .onAppear {
-                    if manager.isAvailable() {
-                        print("HealthKit is available!")
-                        // Add code to use HealthKit here.
-                    } else {
-                        print("HealthKit not available")
+            if isOnboarding {
+                Onboarding()
+                    .environmentObject(manager)
+            } else {
+                ContentView()
+                    .modelContainer(for: [Day.self, Part.self, Fuel.self])
+                    .environmentObject(manager)
+                    .onAppear {
+                        if manager.isAvailable() {
+                            print("HealthKit is available!")
+                            // Add code to use HealthKit here.
+                        } else {
+                            print("HealthKit not available")
+                        }
                     }
-                }
+            }
         }
     }
 }

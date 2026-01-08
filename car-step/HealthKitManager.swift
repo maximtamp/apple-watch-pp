@@ -22,17 +22,9 @@ class HealthKitManager: ObservableObject {
     @Published var steps: Int = 0
         
     init() {
-        let steps = HKQuantityType(.stepCount)
-        
-        let healthTypes: Set = [steps]
         
         Task {
-            do {
-                try await healthStore.requestAuthorization(toShare: [], read: healthTypes)
-                fetchTodaySteps()
-            } catch {
-                print("Error fetching health data: \(error.localizedDescription)")
-            }
+            
         }
     }
     
@@ -43,6 +35,42 @@ class HealthKitManager: ObservableObject {
     func isAvailable() -> Bool {
         return HKHealthStore.isHealthDataAvailable()
     }
+    
+    func requestStepAuthorization() async -> Bool {
+        let steps = HKQuantityType(.stepCount)
+        let healthTypes: Set = [steps]
+        
+        do {
+            try await healthStore.requestAuthorization(toShare: [], read: healthTypes)
+            
+            return await withCheckedContinuation { continuation in
+                let predicate = HKQuery.predicateForSamples(withStart: .startOfDay, end: Date())
+                let query = HKStatisticsQuery(quantityType: steps, quantitySamplePredicate: predicate) { [weak self] _, result, error in
+                    guard let self = self else {
+                        continuation.resume(returning: false)
+                        return
+                    }
+                    
+                    DispatchQueue.main.async {
+                        if let quantity = result?.sumQuantity(), error == nil {
+                            self.steps = Int(quantity.doubleValue(for: .count()))
+                            self.fetchTodaySteps()
+                            continuation.resume(returning: true)
+                        } else {
+                            continuation.resume(returning: false)
+                        }
+                    }
+                }
+                
+                self.healthStore.execute(query)
+            }
+            
+        } catch {
+            print("Error bij HealthKit authorization: \(error.localizedDescription)")
+            return false
+        }
+    }
+
     
     func fetchTodaySteps() {
         let steps = HKQuantityType(.stepCount)

@@ -9,6 +9,8 @@ import SwiftUI
 import SwiftData
 
 struct History: View {
+    @AppStorage("isOnboarding") var isOnboarding: Bool?
+
     @Query private var days: [Day]
     
     var body: some View {
@@ -30,6 +32,9 @@ struct History: View {
                     }
                 }
             }
+        }
+        Button("Onboarding") {
+            isOnboarding = true
         }
     }
 }
