@@ -22,7 +22,12 @@ struct Card: View {
                 
                 Spacer()
                 
-                image
+                ZStack {
+                    image
+                }
+                .frame(width: 32, height: 32)
+                .background(color.opacity(0.5))
+                .cornerRadius(90)
             }
             Text("\(value)")
                 .font(.title)

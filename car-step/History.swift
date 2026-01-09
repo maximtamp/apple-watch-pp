@@ -10,6 +10,7 @@ import SwiftData
 
 struct History: View {
     @AppStorage("isOnboarding") var isOnboarding: Bool?
+    @EnvironmentObject var manager: HealthKitManager
 
     @Query private var days: [Day]
     
@@ -32,6 +33,9 @@ struct History: View {
                     }
                 }
             }
+        }
+        .refreshable {
+            manager.fetchTodaySteps()
         }
         Button("Onboarding") {
             isOnboarding = true
