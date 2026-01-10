@@ -51,15 +51,19 @@ class AppData {
         if let unfinishedPart = parts.first(where: { !$0.partMade }) {
             part = unfinishedPart
         } else {
-            let newPart = Part(
-                name: "Flitser",
-                type: "Wheel",
-                partMade: false,
-                progressValue: 0,
-                maxValue: 10000
-            )
-            context.insert(newPart)
-            part = newPart
+            if let randomPart = Part.possibleParts.randomElement(){
+                let newPart = Part(
+                    name: randomPart.name,
+                    type: randomPart.type,
+                    rarity: randomPart.rarity,
+                    partMade: false,
+                    progressValue: 0,
+                    maxValue: randomPart.maxValue,
+                    creationDate: .now
+                )
+                context.insert(newPart)
+                self.part = newPart
+            }
         }
     }
     
@@ -71,5 +75,33 @@ class AppData {
             context.insert(newFuel)
             fuel = newFuel
         }
+    }
+    
+    func finishedPart(part: Part, context: ModelContext) {
+        part.progressValue = part.maxValue
+        part.partMade = true
+        part.creationDate = .now
+        
+        if let randomPart = Part.possibleParts.randomElement(){
+            let newPart = Part(
+                name: randomPart.name,
+                type: randomPart.type,
+                rarity: randomPart.rarity,
+                partMade: false,
+                progressValue: 0,
+                maxValue: randomPart.maxValue,
+                creationDate: .now
+            )
+            context.insert(newPart)
+            self.part = newPart
+        }
+    }
+    
+    func updatePartProgrss(part: Part, context: ModelContext, newValue: Int) {
+        part.progressValue = newValue
+    }
+    
+    func updateFuel(fuel: Fuel, context: ModelContext, newValue: Int) {
+        fuel.value = newValue
     }
 }

@@ -13,33 +13,43 @@ struct Home: View {
     @Environment(\.modelContext) private var context
     @Environment(AppData.self) private var appData
     
-   
+   @State private var showUseFuelPopover: Bool = false
+    @Query var parts: [Part]
         
     func todayDate() -> Date {
         Calendar.current.startOfDay(for: .now)
+    }
+    
+    func closeUseFuelPopover() {
+        showUseFuelPopover = false
     }
             
     var body: some View {
         ScrollView{
         VStack {
             if let today = appData.today, let part = appData.part, let fuel = appData.fuel {
-                CanvasTests(progress: part.progressPrecent)
-                
+                HomeShapeView(progress: part.progressPrecent)
+
                 VStack {
                     HStack {
                         Button("Claim Step") {
+                            fuel.value += today.totalSteps - today.claimedSteps
                             today.claimedSteps += today.totalSteps - today.claimedSteps
-                            fuel.value += today.claimedSteps - today.usedFuel
                         }
                         .buttonStyle(.borderedProminent)
                         .disabled(today.totalSteps - today.claimedSteps == 0)
                         Button("Use Fuel") {
-                            part.progressValue += fuel.value
-                            today.usedFuel += fuel.value
-                            fuel.value = 0
+                            showUseFuelPopover = true
                         }
                         .buttonStyle(.borderedProminent)
                         .disabled(fuel.value == 0)
+                        .popover(isPresented: $showUseFuelPopover) {
+                            UseFuel(
+                                fuel: fuel,
+                                part: part,
+                                onClose: closeUseFuelPopover
+                            )
+                        }
                     }
                     .padding(.vertical, 20)
                     

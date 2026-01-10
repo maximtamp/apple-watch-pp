@@ -13,6 +13,7 @@ struct History: View {
     @EnvironmentObject var manager: HealthKitManager
 
     @Query private var days: [Day]
+    @Query private var parts: [Part]
     
     var body: some View {
         List(days, id: \.date) { day in
@@ -36,6 +37,16 @@ struct History: View {
         }
         .refreshable {
             manager.fetchTodaySteps()
+        }
+        List(parts) { part in
+            VStack {
+                Text("Name: \(part.name)")
+                Text("Type: \(part.type)")
+                Text("Rarity: \(part.rarity)")
+                Text("Part Made: \(part.partMade ? "Yes" : "No")")
+                Text("Progress: \(part.progressValue) / \(part.maxValue)")
+                Text("Created at: \(part.creationDate)")
+            }
         }
         Button("Onboarding") {
             isOnboarding = true
