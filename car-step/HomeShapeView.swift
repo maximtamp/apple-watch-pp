@@ -38,18 +38,19 @@ struct PartSVGo: Shape {
 }
 
 struct HomeShapeView: View {
-    let progress: Double
+    let part: Part
     var body: some View {
-        PartSVGo()
-            .trim(from: 0.0, to: progress)
-            .stroke(lineWidth: 5)
-            .fill(LinearGradient(colors: [Color.black, Color.black], startPoint: .topLeading, endPoint: .bottomTrailing))
-            .scaledToFit()
-            .padding()
-            .frame(width: 300, height: 300)
+        VStack {
+            Spacer()
+            part.getPartShape(neededPart: part.type, progress: part.progressPrecent)
+            Spacer()
+        }
+        .aspectRatio(1, contentMode: .fit)
+        .frame(width: 300, height: 300)
     }
 }
 
 #Preview {
-    HomeShapeView(progress: 0.6)
+    let dummyPart = Part(name: "Sparky", type: "Wheel", rarity: "Rare", partMade: false, progressValue: 0, maxValue: 10000, creationDate: .now)
+    HomeShapeView(part: dummyPart)
 }

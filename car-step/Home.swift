@@ -13,7 +13,7 @@ struct Home: View {
     @Environment(\.modelContext) private var context
     @Environment(AppData.self) private var appData
     
-   @State private var showUseFuelPopover: Bool = false
+    @State private var showUseFuelPopover: Bool = false
     @Query var parts: [Part]
         
     func todayDate() -> Date {
@@ -28,7 +28,7 @@ struct Home: View {
         ScrollView{
         VStack {
             if let today = appData.today, let part = appData.part, let fuel = appData.fuel {
-                HomeShapeView(progress: part.progressPrecent)
+                HomeShapeView(part: part)
 
                 VStack {
                     HStack {

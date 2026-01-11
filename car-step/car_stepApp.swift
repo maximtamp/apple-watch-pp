@@ -24,7 +24,7 @@ struct car_stepApp: App {
                     .environmentObject(manager)
             } else {
                 ContentView()
-                    .modelContainer(for: [Day.self, Part.self, Fuel.self])
+                    .modelContainer(for: [Day.self, Part.self, Fuel.self, Car.self])
                     .environmentObject(manager)
                     .environment(appData)
             }

@@ -17,6 +17,7 @@ struct ContentView: View {
     @Query private var days: [Day]
     @Query private var parts: [Part]
     @Query private var fuels: [Fuel]
+    @Query private var cars: [Car]
             
     var body: some View {
         VStack{
@@ -66,6 +67,9 @@ struct ContentView: View {
                 Tab("History", systemImage: "calendar") {
                     History()
                 }
+                Tab("Garage", systemImage: "door.garage.closed") {
+                    Garage()
+                }
             }
         }
         .onAppear {
@@ -75,6 +79,7 @@ struct ContentView: View {
                 days: days,
                 parts: parts,
                 fuels: fuels,
+                cars: cars,
             )
             manager.fetchTodaySteps()
         }

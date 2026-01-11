@@ -72,6 +72,11 @@ struct UseFuel: View {
                 .multilineTextAlignment(.center)
                 .font(.title)
                 HStack {
+                    Button("-1%") {
+                        amountOfFuelUse -= fuel.value / 100
+                    }
+                    .disabled(amountOfFuelUse - fuel.value / 100 < 0)
+                    .buttonStyle(.bordered)
                     Button("-10%") {
                         amountOfFuelUse -= fuel.value / 10
                     }
@@ -82,6 +87,18 @@ struct UseFuel: View {
                     }
                     .buttonStyle(.bordered)
                     .disabled(amountOfFuelUse >= min(fuel.value, part.maxValue - part.progressValue))
+                    Button("+1%") {
+                        amountOfFuelUse += fuel.value / 100
+                    }
+                    .buttonStyle(.bordered)
+                    .disabled(amountOfFuelUse >= min(fuel.value, part.maxValue - part.progressValue))
+                }
+                HStack {
+                    Button("Min") {
+                        amountOfFuelUse = 1
+                    }
+                    .buttonStyle(.borderedProminent)
+                    .disabled(amountOfFuelUse <= 1)
                     Button("Max") {
                         amountOfFuelUse = min(fuel.value, part.maxValue - part.progressValue)
                     }
@@ -110,19 +127,20 @@ struct UseFuel: View {
                     }
                 }
                 .buttonStyle(.borderedProminent)
+                .padding(.top, 20)
                 .disabled(amountOfFuelUse == 0)
             }
             .onAppear {
                 partProgress = Double(part.progressValue) / Double(part.maxValue)
             }
         } else if useFuelState == "Running" {
-            PartSVG()
-                .trim(from: 0.0, to: partProgress)
-                .stroke(lineWidth: 5)
-                .fill(LinearGradient(colors: [Color.black, Color.black], startPoint: .topLeading, endPoint: .bottomTrailing))
-                .scaledToFit()
-                .padding()
-                .frame(width: 300, height: 300)
+            VStack {
+                Spacer()
+                part.getPartShape(neededPart: part.type, progress: partProgress)
+                Spacer()
+            }
+            .aspectRatio(1, contentMode: .fit)
+            .frame(width: 300, height: 300)
         }
         if useFuelState == "ShapeDone" {
             Text("You have completed a part!")
