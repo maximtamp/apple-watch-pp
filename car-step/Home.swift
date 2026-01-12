@@ -25,11 +25,10 @@ struct Home: View {
     }
             
     var body: some View {
-        ScrollView{
-        VStack {
-            if let today = appData.today, let part = appData.part, let fuel = appData.fuel {
-                HomeShapeView(part: part)
 
+        if let today = appData.today, let part = appData.part, let fuel = appData.fuel {
+            ScrollView{
+                HomeShapeView(part: part)
                 VStack {
                     HStack {
                         Button("Claim Step") {
@@ -59,22 +58,23 @@ struct Home: View {
                     }
                     Card(value: today.totalSteps - today.claimedSteps, name: "Claimable steps", image: Image(systemName: "hand.point.up.left.fill"), color: .yellow)
                 }
-                
+            }
+            .padding()
+            .onAppear {
+                appData.updateTodaySteps(context: context, manager: manager, today: today)
+            }
+            .onChange(of: manager.steps) {
+                appData.updateTodaySteps(context: context, manager: manager, today: today)
+            }
+            .refreshable {
+                appData.updateTodaySteps(context: context, manager: manager, today: today)
+            }
             } else {
                 ProgressView("Loading Today's Steps")
-            }
-        }
-        .padding()
-        .onChange(of: manager.steps) {
-            appData.today?.totalSteps = manager.steps
         }
     }
-    .refreshable {
-        manager.fetchTodaySteps()
-    }
-    }
-    
 }
+
 
 #Preview {
     Home()

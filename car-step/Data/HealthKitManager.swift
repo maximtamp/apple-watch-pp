@@ -91,5 +91,10 @@ class HealthKitManager: ObservableObject {
         healthStore.execute(query)
     }
     
+    func getTodaySteps() -> Int {
+        fetchTodaySteps()
+        return steps
+    }
+    
 }
 

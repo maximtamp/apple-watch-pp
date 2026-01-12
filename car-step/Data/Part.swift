@@ -81,22 +81,22 @@ class Part {
         case "Body":
              BodyShape()
                 .trim(from: 0.0, to: progress)
-                .stroke(lineWidth: 5)
+                .stroke(.primary, lineWidth: 5)
                 .frame(maxWidth: 300, maxHeight: 143)
         case "Engine":
              EngineShape()
                 .trim(from: 0.0, to: progress)
-                .stroke(lineWidth: 5)
+                .stroke(.primary, lineWidth: 5)
                 .frame(maxWidth: 300, maxHeight: 202)
         case "Wheel":
              WheelShape()
                 .trim(from: 0.0, to: progress)
-                .stroke(lineWidth: 5)
+                .stroke(.primary, lineWidth: 5)
                 .frame(maxWidth: 300, maxHeight: 300)
         default:
              BodyShape()
                 .trim(from: 0.0, to: progress)
-                .stroke(lineWidth: 5)
+                .stroke(.primary, lineWidth: 5)
                 .frame(maxWidth: 300, maxHeight: 143)
         }
     }

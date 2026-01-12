@@ -156,4 +156,22 @@ class AppData {
             print("No type found")
         }
     }
+    
+    func updateTodaySteps(context: ModelContext, manager: HealthKitManager, today: Day) {
+        let todayDate = Calendar.current.startOfDay(for: .now)
+        
+        if Calendar.current.isDate(today.date, inSameDayAs: todayDate) {
+            today.totalSteps = manager.getTodaySteps()
+        } else {
+            let newDay = Day(
+                date: todayDate,
+                totalSteps: 0,
+                claimedSteps: 0,
+                usedFuel: 0
+            )
+            context.insert(newDay)
+            self.today = newDay
+            today.totalSteps = manager.getTodaySteps()
+        }
+    }
 }

@@ -11,41 +11,36 @@ import SwiftData
 struct History: View {
     @AppStorage("isOnboarding") var isOnboarding: Bool?
     @EnvironmentObject var manager: HealthKitManager
+    @Environment(\.modelContext) private var context
+    @Environment(AppData.self) private var appData
 
     @Query private var days: [Day]
     @Query private var parts: [Part]
     
     var body: some View {
         List(days, id: \.date) { day in
-            VStack {
-                Text(day.date.formatted(date: .abbreviated, time: .omitted))
-                HStack {
+            HStack {
+                Image(systemName: "calendar")
+                    .font(.largeTitle)
+                    .frame(width: 48, height: 48)
+                    .padding(4)
+                    .background(Color.black.opacity(0.1))
+                    .cornerRadius(8)
+                HStack(alignment: .top) {
                     VStack {
-                        Text("Total Steps")
-                        Text("\(day.totalSteps)")
+                        Text("Steps: \(day.totalSteps)")
+                        Text("+Fuel: \(day.claimedSteps)")
                     }
-                    VStack {
-                        Text("Claimed Steps")
-                        Text("\(day.claimedSteps)")
-                    }
-                    VStack {
-                        Text("Used Fuel")
-                        Text("\(day.usedFuel)")
-                    }
+                    .padding(.horizontal, 8)
+                    Spacer()
+                    Text(day.date.formatted(date: .abbreviated, time: .omitted))
+                        .foregroundColor(.primary.opacity(0.6))
                 }
             }
         }
         .refreshable {
-            manager.fetchTodaySteps()
-        }
-        List(parts) { part in
-            VStack {
-                Text("Name: \(part.name)")
-                Text("Type: \(part.type)")
-                Text("Rarity: \(part.rarity)")
-                Text("Part Made: \(part.partMade ? "Yes" : "No")")
-                Text("Progress: \(part.progressValue) / \(part.maxValue)")
-                Text("Created at: \(part.creationDate)")
+            if let today = appData.today {
+                appData.updateTodaySteps(context: context, manager: manager, today: today)
             }
         }
         Button("Onboarding") {

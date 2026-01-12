@@ -71,24 +71,28 @@ struct UseFuel: View {
                 Text("\(amountOfFuelUse)")
                 .multilineTextAlignment(.center)
                 .font(.title)
+                
+                let minValue = 0
+                let maxValue = part.maxValue - part.progressValue
+                
                 HStack {
                     Button("-1%") {
-                        amountOfFuelUse -= fuel.value / 100
+                        amountOfFuelUse = max(minValue, amountOfFuelUse - fuel.value / 100)
                     }
                     .disabled(amountOfFuelUse - fuel.value / 100 < 0)
                     .buttonStyle(.bordered)
                     Button("-10%") {
-                        amountOfFuelUse -= fuel.value / 10
+                        amountOfFuelUse = max(minValue, amountOfFuelUse - fuel.value / 10)
                     }
                     .disabled(amountOfFuelUse - fuel.value / 10 < 0)
                     .buttonStyle(.bordered)
                     Button("+10%") {
-                        amountOfFuelUse += fuel.value / 10
+                        amountOfFuelUse = min(maxValue, amountOfFuelUse + fuel.value / 10)
                     }
                     .buttonStyle(.bordered)
                     .disabled(amountOfFuelUse >= min(fuel.value, part.maxValue - part.progressValue))
                     Button("+1%") {
-                        amountOfFuelUse += fuel.value / 100
+                        amountOfFuelUse = min(maxValue, amountOfFuelUse + fuel.value / 100)
                     }
                     .buttonStyle(.bordered)
                     .disabled(amountOfFuelUse >= min(fuel.value, part.maxValue - part.progressValue))
