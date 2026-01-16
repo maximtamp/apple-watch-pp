@@ -71,9 +71,28 @@
 		1BF63D572F181C86008F8F52 /* watch-car-step Watch AppUITests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = "watch-car-step Watch AppUITests.xctest"; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
 
+/* Begin PBXFileSystemSynchronizedBuildFileExceptionSet section */
+		1B0164B22F1A8FBC00BD09BD /* Exceptions for "car-step" folder in "watch-car-step Watch App" target */ = {
+			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
+			membershipExceptions = (
+				Data/AppData.swift,
+				Data/Car.swift,
+				Data/Day.swift,
+				Data/Fuel.swift,
+				Data/HealthKitManager.swift,
+				Data/Part.swift,
+				Data/PartShapes.swift,
+			);
+			target = 1BF63D402F181C84008F8F52 /* watch-car-step Watch App */;
+		};
+/* End PBXFileSystemSynchronizedBuildFileExceptionSet section */
+
 /* Begin PBXFileSystemSynchronizedRootGroup section */
 		1B6F40772F0E8A6F00AE9D82 /* car-step */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
+			exceptions = (
+				1B0164B22F1A8FBC00BD09BD /* Exceptions for "car-step" folder in "watch-car-step Watch App" target */,
+			);
 			path = "car-step";
 			sourceTree = "<group>";
 		};
@@ -768,12 +787,14 @@
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				CODE_SIGN_ENTITLEMENTS = "watch-car-step Watch App/watch-car-step Watch App.entitlements";
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
 				DEVELOPMENT_TEAM = NL87JTT4RX;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_KEY_CFBundleDisplayName = "watch-car-step";
+				INFOPLIST_KEY_NSHealthShareUsageDescription = "Pleas allow so we can use your steps";
 				INFOPLIST_KEY_UISupportedInterfaceOrientations = "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown";
 				INFOPLIST_KEY_WKCompanionAppBundleIdentifier = "maximtamp.car-step";
 				LD_RUNPATH_SEARCH_PATHS = (
@@ -801,12 +822,14 @@
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				CODE_SIGN_ENTITLEMENTS = "watch-car-step Watch App/watch-car-step Watch App.entitlements";
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
 				DEVELOPMENT_TEAM = NL87JTT4RX;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_KEY_CFBundleDisplayName = "watch-car-step";
+				INFOPLIST_KEY_NSHealthShareUsageDescription = "Pleas allow so we can use your steps";
 				INFOPLIST_KEY_UISupportedInterfaceOrientations = "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown";
 				INFOPLIST_KEY_WKCompanionAppBundleIdentifier = "maximtamp.car-step";
 				LD_RUNPATH_SEARCH_PATHS = (

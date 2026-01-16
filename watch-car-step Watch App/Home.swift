@@ -8,37 +8,52 @@
 import SwiftUI
 
 struct Home: View {
+    @EnvironmentObject var manager: HealthKitManager
+    @Environment(\.modelContext) private var context
+    @Environment(AppData.self) private var appData
     
-    let stats: [(icon: String, value: Int, color: Color)] = [
-        (icon: "shoeprints.fill", value: 10000, color: Color.blue.opacity(0.5)),
-        (icon: "hand.point.up.left.fill", value: 6000, color: Color.yellow.opacity(0.5)),
-        (icon: "bolt.fill", value: 4000, color: Color.red.opacity(0.5)),
-    ]
     
     var body: some View {
-        VStack(alignment: .leading, spacing: 2) {
-            VStack(alignment: .leading, spacing: 4) {
-                ForEach(stats, id: \.icon) { stat in
-                    HStack(spacing: 8){
-                        ZStack {
-                            Image(systemName: stat.icon)
-                                .font(.system(size: 20))
+        if let today = appData.today, let fuel = appData.fuel {
+            
+            let stats = [
+                (icon: "shoeprints.fill", value: today.totalSteps, color: Color.blue.opacity(0.5)),
+                (icon: "hand.point.up.left.fill", value: today.totalSteps - today.claimedSteps, color: Color.yellow.opacity(0.5)),
+                (icon: "bolt.fill", value: fuel.value, color: Color.red.opacity(0.5)),
+            ]
+            VStack(alignment: .leading, spacing: 2) {
+                VStack(alignment: .leading, spacing: 4) {
+                    ForEach(stats, id: \.icon) { stat in
+                        HStack(spacing: 8){
+                            ZStack {
+                                Image(systemName: stat.icon)
+                                    .font(.system(size: 20))
+                            }
+                            .frame(width: 32, height: 32)
+                            .background(stat.color)
+                            .cornerRadius(90)
+                            Text("\(stat.value)")
+                                .font(.system(size: 28))
                         }
-                        .frame(width: 32, height: 32)
-                        .background(stat.color)
-                        .cornerRadius(90)
-                        Text("\(stat.value)")
-                            .font(.system(size: 28))
                     }
                 }
+                Spacer()
+                
+                Button("Claim Steps") {
+                    fuel.value += today.totalSteps - today.claimedSteps
+                    today.claimedSteps += today.totalSteps - today.claimedSteps
+                }
             }
-            Spacer()
-            
-            Button("Claim Steps") {
-                // Function
+            .frame(maxWidth: .infinity, maxHeight: .infinity)
+            .onAppear {
+                appData.updateTodaySteps(context: context, manager: manager, today: today)
             }
+            .onChange(of: manager.steps) {
+                appData.updateTodaySteps(context: context, manager: manager, today: today)
+            }
+        } else {
+            ProgressView("Loading Data")
         }
-        .frame(maxWidth: .infinity, maxHeight: .infinity)
     }
 }
 

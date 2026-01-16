@@ -76,28 +76,30 @@ class Part {
     }
     
     @ViewBuilder
-    func getPartShape(neededPart: String, progress: Double) -> some View {
+    func getPartShape(neededPart: String, progress: Double, size: Int) -> some View {
+        let sizeDivider = 300 / size
+        
         switch neededPart {
         case "Body":
              BodyShape()
                 .trim(from: 0.0, to: progress)
-                .stroke(.primary, lineWidth: 5)
-                .frame(maxWidth: 300, maxHeight: 143)
+                .stroke(.primary, lineWidth: 4)
+                .frame(maxWidth: CGFloat(300 / sizeDivider), maxHeight: CGFloat(143 / sizeDivider))
         case "Engine":
              EngineShape()
                 .trim(from: 0.0, to: progress)
-                .stroke(.primary, lineWidth: 5)
-                .frame(maxWidth: 300, maxHeight: 202)
+                .stroke(.primary, lineWidth: 4)
+                .frame(maxWidth: CGFloat(300 / sizeDivider), maxHeight: CGFloat(202 / sizeDivider))
         case "Wheel":
              WheelShape()
                 .trim(from: 0.0, to: progress)
-                .stroke(.primary, lineWidth: 5)
-                .frame(maxWidth: 300, maxHeight: 300)
+                .stroke(.primary, lineWidth: 4)
+                .frame(maxWidth: CGFloat(300 / sizeDivider), maxHeight: CGFloat(300 / sizeDivider))
         default:
              BodyShape()
                 .trim(from: 0.0, to: progress)
-                .stroke(.primary, lineWidth: 5)
-                .frame(maxWidth: 300, maxHeight: 143)
+                .stroke(.primary, lineWidth: 4)
+                .frame(maxWidth: CGFloat(300 / sizeDivider), maxHeight: CGFloat(143 / sizeDivider))
         }
     }
 }

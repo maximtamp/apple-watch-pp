@@ -15,10 +15,6 @@ struct Home: View {
     
     @State private var showUseFuelPopover: Bool = false
     @Query var parts: [Part]
-        
-    func todayDate() -> Date {
-        Calendar.current.startOfDay(for: .now)
-    }
     
     func closeUseFuelPopover() {
         showUseFuelPopover = false
