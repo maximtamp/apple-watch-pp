@@ -18,6 +18,7 @@ struct ContentView: View {
     @Query private var parts: [Part]
     @Query private var fuels: [Fuel]
     @Query private var cars: [Car]
+    @Query private var quests: [Quest]
             
     var body: some View {
         VStack{
@@ -67,6 +68,9 @@ struct ContentView: View {
                 Tab("History", systemImage: "calendar") {
                     History()
                 }
+                Tab("Quests", systemImage: "scroll.fill") {
+                    Quests()
+                }
                 Tab("Garage", systemImage: "door.garage.closed") {
                     Garage()
                 }
@@ -84,6 +88,7 @@ struct ContentView: View {
                 fuels: fuels,
                 cars: cars,
             )
+            appData.setupQuests(context: context, quests: quests)
             manager.fetchTodaySteps()
         }
     }

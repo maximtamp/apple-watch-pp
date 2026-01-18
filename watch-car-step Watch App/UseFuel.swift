@@ -11,6 +11,7 @@ import SwiftData
 struct UseFuel: View {
     var fuel: Fuel
     var part: Part
+    var today: Day
     
     @Environment(\.modelContext) private var context
     @Environment(AppData.self) private var appData
@@ -49,6 +50,7 @@ struct UseFuel: View {
                         partProgress = newPartProgress
                     } completion: {
                         appData.updateFuel(fuel: fuel, context: context, newValue: fuel.value - amountOfFuelUse)
+                        appData.updateTodayUsedFuel(today: today, context: context, newValue: today.usedFuel + amountOfFuelUse)
                         if partProgress == 1.0 {
                             createdPartName = part.name
                             createdPartType = part.type
@@ -118,5 +120,6 @@ struct UseFuel: View {
 #Preview {
     let mockPart = Part(name: "Sparky", type: "Wheel", rarity: "Rare", partMade: false, progressValue: 0, maxValue: 10000, creationDate: .now)
     let mockFuel = Fuel(value: 8000)
-    UseFuel(fuel: mockFuel, part: mockPart)
+    let mockToday = Day( date: .now, totalSteps: 0, claimedSteps: 0, usedFuel: 0)
+    UseFuel(fuel: mockFuel, part: mockPart, today: mockToday)
 }

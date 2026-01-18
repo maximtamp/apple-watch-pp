@@ -47,6 +47,7 @@ struct Home: View {
                             UseFuel(
                                 fuel: fuel,
                                 part: part,
+                                today: today,
                                 onClose: closeUseFuelPopover
                             )
                         }

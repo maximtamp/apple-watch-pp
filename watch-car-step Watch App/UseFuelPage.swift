@@ -13,7 +13,7 @@ struct UseFuelPage: View {
     @State private var partProgress: Double = 0
     
     var body: some View {
-        if let part = appData.part, let fuel = appData.fuel {
+        if let part = appData.part, let fuel = appData.fuel, let today = appData.today {
             NavigationStack{
                 VStack(spacing: 12) {
                     VStack {
@@ -25,7 +25,7 @@ struct UseFuelPage: View {
                     .frame(width: 100, height: 100)
                     
                     NavigationLink("Use Fuel") {
-                        UseFuel(fuel: fuel, part: part)
+                        UseFuel(fuel: fuel, part: part, today: today)
                     }
                 }
                 .frame(maxWidth: .infinity, maxHeight: .infinity)

@@ -82,6 +82,7 @@
 				Data/HealthKitManager.swift,
 				Data/Part.swift,
 				Data/PartShapes.swift,
+				Data/Quest.swift,
 				Data/WatchConnectivitySync.swift,
 			);
 			target = 1BF63D402F181C84008F8F52 /* watch-car-step Watch App */;

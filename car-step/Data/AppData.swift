@@ -14,6 +14,7 @@ class AppData {
     var part: Part?
     var fuel: Fuel?
     var car: Car?
+    var todayQuests: [Quest]? = []
     
     func setup(
         context: ModelContext,
@@ -116,6 +117,82 @@ class AppData {
         }
     }
     
+    func setupQuests(context: ModelContext, quests: [Quest]){
+        let todayDate = Calendar.current.startOfDay(for: .now)
+        var todayQuests = quests.filter{
+            Calendar.current.isDate($0.date, inSameDayAs: todayDate)
+        }
+        
+        if todayQuests.count >= 3 {
+            self.todayQuests = todayQuests
+            return
+        }
+        
+        let usedTypes = Set(todayQuests.map { $0.type })
+
+        var availableTypes = QuestType.allCases.filter {
+            !usedTypes.contains($0)
+        }
+
+        availableTypes.shuffle()
+
+        let amountToCreate = min(3 - todayQuests.count, availableTypes.count)
+
+        for type in availableTypes.prefix(amountToCreate) {
+            let newQuest = questMaker(type: type, date: todayDate)
+            context.insert(newQuest)
+            todayQuests.append(newQuest)
+        }
+        
+        self.todayQuests = todayQuests
+    }
+    
+    private func questMaker(type: QuestType, date: Date) -> Quest {
+        switch type {
+        case .placeSteps:
+            let possibleValues = [1000, 2500, 5000, 7500, 10000]
+            let value = possibleValues.randomElement()!
+            
+            return Quest(
+                date: date,
+                title: "Place \(value) steps",
+                type: .placeSteps,
+                currentValue: 0,
+                neededValue: value,
+                claimed: false,
+                fuelReward: value / 2
+            )
+            
+        case .useFuel:
+            let possibleValues = [1000, 2500, 5000, 7500, 10000, 12500, 15000]
+            let value = possibleValues.randomElement()!
+            
+            return Quest(
+                date: date,
+                title: "Use \(value) fuel",
+                type: .useFuel,
+                currentValue: 0,
+                neededValue: value,
+                claimed: false,
+                fuelReward: value / 2
+            )
+            
+        case .makeParts:
+            let possibleValues = [1, 2, 3]
+            let value = possibleValues.randomElement()!
+            
+            return Quest(
+                date: date,
+                title: "Make \(value) parts",
+                type: .makeParts,
+                currentValue: 0,
+                neededValue: value,
+                claimed: false,
+                fuelReward: value * 3000
+            )
+        }
+    }
+    
     func finishedPart(part: Part, context: ModelContext) {
         part.progressValue = part.maxValue
         part.partMade = true
@@ -145,6 +222,11 @@ class AppData {
     func updateFuel(fuel: Fuel, context: ModelContext, newValue: Int) {
         fuel.value = newValue
         WatchConnectivitySync.shared.sendFuel(fuel)
+    }
+    
+    func updateTodayUsedFuel(today: Day, context: ModelContext, newValue: Int) {
+        today.usedFuel = newValue
+        WatchConnectivitySync.shared.sendToday(today)
     }
     
     func updateCarPartId(car: Car, context: ModelContext, partType: String, newID: UUID = UUID()) {
@@ -178,5 +260,26 @@ class AppData {
             self.today = newDay
             today.totalSteps = manager.getTodaySteps()
         }
+    }
+    
+    func checkTodayQuestProgress(today: Day, parts: [Part]) {
+        let todayDate = Calendar.current.startOfDay(for: .now)
+        
+        self.todayQuests?.forEach{ quest in
+            switch quest.type {
+            case .placeSteps:
+                quest.currentValue = today.totalSteps
+            case .useFuel:
+                quest.currentValue = today.usedFuel
+            case .makeParts:
+                quest.currentValue = parts.filter{ $0.partMade && Calendar.current.isDate($0.creationDate, inSameDayAs: todayDate) }.count
+            }
+        }
+    }
+    
+    func claimQuestReward(quest: Quest, fuel: Fuel) {
+        quest.claimed = true
+        fuel.value += quest.fuelReward
+        WatchConnectivitySync.shared.sendFuel(fuel)
     }
 }
