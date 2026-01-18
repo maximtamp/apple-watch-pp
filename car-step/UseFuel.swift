@@ -6,6 +6,7 @@
 //
 
 import SwiftUI
+import SwiftData
 
 struct PartSVG: Shape {
     func path(in rect: CGRect) -> Path {
@@ -44,6 +45,8 @@ struct UseFuel: View {
     
     @Environment(\.modelContext) private var context
     @Environment(AppData.self) private var appData
+    
+    @Query private var parts: [Part]
     
     @State private var amountOfFuelUse: Int = 0
     @State private var useFuelState: String = "AmountPicking"
@@ -124,9 +127,12 @@ struct UseFuel: View {
                             
                             useFuelState = "ShapeDone"
                             appData.finishedPart(part: part, context: context)
+                            WatchConnectivitySync.shared.sendParts(parts)
                         } else {
                             useFuelState = "ShapeNotDone"
                             appData.updatePartProgrss(part: part, context: context, newValue: part.progressValue + amountOfFuelUse)
+                            
+                            
                         }
                     }
                 }

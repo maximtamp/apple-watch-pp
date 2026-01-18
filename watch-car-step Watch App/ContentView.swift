@@ -9,6 +9,8 @@ import SwiftUI
 import SwiftData
 
 struct ContentView: View {
+    @AppStorage("isSetup") var isSetup: Bool = false
+    
     @EnvironmentObject var manager: HealthKitManager
     @Environment(\.modelContext) private var context
     @Environment(AppData.self) private var appData
@@ -19,11 +21,22 @@ struct ContentView: View {
     @Query private var cars: [Car]
     
     var body: some View {
-        NavigationStack{
-            TabView {
-                Home()
-                UseFuelPage()
-                Garage()
+        VStack{
+            if isSetup {
+                NavigationStack{
+                    TabView {
+                        Home()
+                        UseFuelPage()
+                        Garage()
+                    }
+                }
+            } else {
+                VStack(spacing: 12){
+                    Text("Not Setup")
+                        .font(.title3 .bold())
+                    Text("On your phone, go to Settings -> Setup Watch")
+                        .multilineTextAlignment(.center)
+                }
             }
         }
         .onAppear {

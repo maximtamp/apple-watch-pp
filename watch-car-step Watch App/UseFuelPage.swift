@@ -18,7 +18,7 @@ struct UseFuelPage: View {
                 VStack(spacing: 12) {
                     VStack {
                         Spacer()
-                        part.getPartShape(neededPart: part.type, progress: partProgress, size: 100)
+                        part.getPartShape(neededPart: part.type, progress: part.progressPrecent, size: 100)
                         Spacer()
                     }
                     .aspectRatio(1, contentMode: .fit)
@@ -29,9 +29,6 @@ struct UseFuelPage: View {
                     }
                 }
                 .frame(maxWidth: .infinity, maxHeight: .infinity)
-            }
-            .onAppear {
-                partProgress = Double(part.progressValue) / Double(part.maxValue)
             }
         } else {
             ProgressView("Loading Data")

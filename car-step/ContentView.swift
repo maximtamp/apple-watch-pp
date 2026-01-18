@@ -70,6 +70,9 @@ struct ContentView: View {
                 Tab("Garage", systemImage: "door.garage.closed") {
                     Garage()
                 }
+                Tab("Settings", systemImage: "gear") {
+                    Settings()
+                }
             }
         }
         .onAppear {

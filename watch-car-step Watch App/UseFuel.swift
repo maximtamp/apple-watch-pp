@@ -6,6 +6,7 @@
 //
 
 import SwiftUI
+import SwiftData
 
 struct UseFuel: View {
     var fuel: Fuel
@@ -14,6 +15,8 @@ struct UseFuel: View {
     @Environment(\.modelContext) private var context
     @Environment(AppData.self) private var appData
     @Environment(\.dismiss) private var dismiss
+    
+    @Query private var parts: [Part]
     
     @State private var amountOfFuelUse: Int = 0
     @State private var useFuelState: String = "AmountPicking"
@@ -53,6 +56,7 @@ struct UseFuel: View {
                             
                             useFuelState = "ShapeDone"
                             appData.finishedPart(part: part, context: context)
+                            WatchConnectivitySync.shared.sendParts(parts)
                         } else {
                             useFuelState = "ShapeNotDone"
                             appData.updatePartProgrss(part: part, context: context, newValue: part.progressValue + amountOfFuelUse)
@@ -64,6 +68,8 @@ struct UseFuel: View {
                 .disabled(amountOfFuelUse == 0)
             }
             .onAppear {
+                valuesToPickFrom.removeAll()
+                
                 partProgress = Double(part.progressValue) / Double(part.maxValue)
                 
                 let maxUseableFuel = min(fuel.value, part.maxValue - part.progressValue)
@@ -91,7 +97,7 @@ struct UseFuel: View {
                         
                     }
                     .frame(width: 64, height: 64)
-                    .background(part.getRarityColor(neededRarity: part.rarity))
+                    .background(part.getRarityColor(neededRarity: createdPartRarity))
                     .cornerRadius(16)
                 }
                 Button("Close"){

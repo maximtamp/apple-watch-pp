@@ -6,6 +6,7 @@
 //
 
 import SwiftUI
+import SwiftData
 
 struct Home: View {
     @EnvironmentObject var manager: HealthKitManager
@@ -42,7 +43,13 @@ struct Home: View {
                 Button("Claim Steps") {
                     fuel.value += today.totalSteps - today.claimedSteps
                     today.claimedSteps += today.totalSteps - today.claimedSteps
+                    
+                    try? context.save()
+                    
+                    WatchConnectivitySync.shared.sendToday(today)
+                    WatchConnectivitySync.shared.sendFuel(fuel)
                 }
+                .disabled(today.totalSteps - today.claimedSteps == 0)
             }
             .frame(maxWidth: .infinity, maxHeight: .infinity)
             .onAppear {

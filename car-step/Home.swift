@@ -30,6 +30,11 @@ struct Home: View {
                         Button("Claim Step") {
                             fuel.value += today.totalSteps - today.claimedSteps
                             today.claimedSteps += today.totalSteps - today.claimedSteps
+                            
+                            try? context.save()
+                            
+                            WatchConnectivitySync.shared.sendToday(today)
+                            WatchConnectivitySync.shared.sendFuel(fuel)
                         }
                         .buttonStyle(.borderedProminent)
                         .disabled(today.totalSteps - today.claimedSteps == 0)

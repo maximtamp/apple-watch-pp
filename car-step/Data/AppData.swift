@@ -133,15 +133,18 @@ class AppData {
             )
             context.insert(newPart)
             self.part = newPart
+            WatchConnectivitySync.shared.sendPart(part)
         }
     }
     
     func updatePartProgrss(part: Part, context: ModelContext, newValue: Int) {
         part.progressValue = newValue
+        WatchConnectivitySync.shared.sendPart(part)
     }
     
     func updateFuel(fuel: Fuel, context: ModelContext, newValue: Int) {
         fuel.value = newValue
+        WatchConnectivitySync.shared.sendFuel(fuel)
     }
     
     func updateCarPartId(car: Car, context: ModelContext, partType: String, newID: UUID = UUID()) {
@@ -155,6 +158,8 @@ class AppData {
         default:
             print("No type found")
         }
+        
+        WatchConnectivitySync.shared.sendCar(car)
     }
     
     func updateTodaySteps(context: ModelContext, manager: HealthKitManager, today: Day) {
