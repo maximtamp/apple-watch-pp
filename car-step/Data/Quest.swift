@@ -9,9 +9,9 @@ import Foundation
 import SwiftData
 
 enum QuestType: String, Codable, CaseIterable {
-    case placeSteps // Place ... steps
-    case useFuel // Use ... fuel
-    case makeParts // make ... part(s)
+    case placeSteps
+    case useFuel
+    case makeParts
 }
 
 @Model

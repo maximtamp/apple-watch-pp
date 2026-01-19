@@ -8,28 +8,17 @@
 import Foundation
 import Combine
 import HealthKit
-
-extension Date {
-    static var startOfDay: Date {
-        Calendar.current.startOfDay(for: Date())
-    }
-}
+import SwiftUI
 
 class HealthKitManager: ObservableObject {
     
     let healthStore = HKHealthStore()
     
     @Published var steps: Int = 0
-        
-    init() {
-        
-        Task {
-            
-        }
-    }
+    @AppStorage("isAllowedReadingSteps") var isAllowedReadingSteps: Bool?
     
-    init(preview : Bool){
-        self.steps = 7421
+    private func getTodaysDate() -> Date {
+        Calendar.current.startOfDay(for: .now)
     }
     
     func isAvailable() -> Bool {
@@ -39,49 +28,53 @@ class HealthKitManager: ObservableObject {
     func requestStepAuthorization() async -> Bool {
         let steps = HKQuantityType(.stepCount)
         let healthTypes: Set = [steps]
-        
+
         do {
             try await healthStore.requestAuthorization(toShare: [], read: healthTypes)
-            
+
             return await withCheckedContinuation { continuation in
-                let predicate = HKQuery.predicateForSamples(withStart: .startOfDay, end: Date())
-                let query = HKStatisticsQuery(quantityType: steps, quantitySamplePredicate: predicate) { [weak self] _, result, error in
-                    guard let self = self else {
-                        continuation.resume(returning: false)
-                        return
-                    }
-                    
+
+                let query = HKStatisticsQuery(quantityType: steps, quantitySamplePredicate: nil) { _, _, error in
+
                     DispatchQueue.main.async {
-                        if let quantity = result?.sumQuantity(), error == nil {
-                            self.steps = Int(quantity.doubleValue(for: .count()))
-                            self.fetchTodaySteps()
-                            continuation.resume(returning: true)
-                        } else {
+                        if error != nil {
                             continuation.resume(returning: false)
+                        } else {
+                            continuation.resume(returning: true)
                         }
                     }
                 }
-                
+
                 self.healthStore.execute(query)
             }
-            
+
         } catch {
-            print("Error bij HealthKit authorization: \(error.localizedDescription)")
+            print("❌ Authorization error:", error)
             return false
         }
     }
 
+
     
     func fetchTodaySteps() {
         let steps = HKQuantityType(.stepCount)
-        let predicate = HKQuery.predicateForSamples(withStart: .startOfDay, end: Date())
+        let predicate = HKQuery.predicateForSamples(withStart: getTodaysDate(), end: Date())
         let query = HKStatisticsQuery(quantityType: steps, quantitySamplePredicate: predicate) { _, result, error in
-            guard let quantity = result?.sumQuantity(), error == nil else {
-                print("error fetching todays step data")
-                return
-            }
             
-            let stepCount = Int(quantity.doubleValue(for: .count()))
+            let stepCount: Int
+            
+            if let error = error as? NSError {
+                if error.domain == HKErrorDomain && error.code == HKError.errorNoData.rawValue {
+                    stepCount = 0
+                } else {
+                    print("Error fetching today's step data: \(error.localizedDescription)")
+                    stepCount = 0
+                }
+            } else if let quantity = result?.sumQuantity() {
+                stepCount = Int(quantity.doubleValue(for: .count()))
+            } else {
+                stepCount = 0
+            }
             
             DispatchQueue.main.async {
                 self.steps = stepCount
@@ -96,5 +89,12 @@ class HealthKitManager: ObservableObject {
         return steps
     }
     
+    func checkStepAuthorizationPermission() async {
+        if await requestStepAuthorization() {
+            isAllowedReadingSteps = true
+        } else {
+            isAllowedReadingSteps = false
+        }
+    }
 }
 

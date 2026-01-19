@@ -64,12 +64,16 @@ struct Home: View {
             .padding()
             .onAppear {
                 appData.updateTodaySteps(context: context, manager: manager, today: today)
+                Task {
+                    await manager.checkStepAuthorizationPermission()
+                }
             }
             .onChange(of: manager.steps) {
                 appData.updateTodaySteps(context: context, manager: manager, today: today)
             }
             .refreshable {
                 appData.updateTodaySteps(context: context, manager: manager, today: today)
+                await manager.checkStepAuthorizationPermission()
             }
             } else {
                 ProgressView("Loading Today's Steps")
@@ -80,7 +84,7 @@ struct Home: View {
 
 #Preview {
     Home()
-        .environmentObject(HealthKitManager(preview: true))
+        .environmentObject(HealthKitManager())
         .environment(AppData())
         .modelContainer(for: Day.self, inMemory: true)
 }

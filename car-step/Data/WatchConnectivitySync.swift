@@ -61,22 +61,18 @@ final class WatchConnectivitySync: NSObject, WCSessionDelegate {
                 "bodyId": car.bodyId.uuidString,
                 "engineId": car.engineId.uuidString,
                 "wheelId": car.wheelId.uuidString,
-                "carColor": car.carColor
             ]
         ] as [String : Any]
 
         send(data)
     }
 
-    // Send current value
     func send(_ data: [String: Any]) {
         if WCSession.default.isReachable {
             WCSession.default.sendMessage(data, replyHandler: nil)
         }
 
         WCSession.default.transferUserInfo(data)
-        
-        //print("SEND:", data)
     }
     
     func sendDays(_ days: [Day]) {
@@ -163,7 +159,6 @@ final class WatchConnectivitySync: NSObject, WCSessionDelegate {
             "bodyId": car.bodyId.uuidString,
             "engineId": car.engineId.uuidString,
             "wheelId": car.wheelId.uuidString,
-            "carColor": car.carColor
         ] as [String : Any]
         
         send([
@@ -172,7 +167,6 @@ final class WatchConnectivitySync: NSObject, WCSessionDelegate {
         ])
     }
 
-    // Receive update
     func session(_ session: WCSession, didReceiveMessage message: [String : Any]) {
         handleData(message)
     }
@@ -183,7 +177,7 @@ final class WatchConnectivitySync: NSObject, WCSessionDelegate {
     
     private func handleData(_ data: [String: Any]) {
         guard let type = data["dataType"] as? String else { return }
-        //print("RECEIVED:", data)
+
         DispatchQueue.main.async {
             switch type {
             case "setup":
@@ -352,27 +346,23 @@ final class WatchConnectivitySync: NSObject, WCSessionDelegate {
               let engineIdStr = car["engineId"] as? String,
               let engineId = UUID(uuidString: engineIdStr),
               let wheelIdStr = car["wheelId"] as? String,
-              let wheelId = UUID(uuidString: wheelIdStr),
-              let carColor = car["carColor"] as? String else { return }
+              let wheelId = UUID(uuidString: wheelIdStr) else { return }
         
         if let existing = appData?.car {
             existing.bodyId = bodyId
             existing.engineId = engineId
             existing.wheelId = wheelId
-            existing.carColor = carColor
         } else if let context {
             let newCar = Car(
                 bodyId: bodyId,
                 engineId: engineId,
                 wheelId: wheelId,
-                carColor: carColor,
             )
             context.insert(newCar)
             appData?.car = newCar
         }
     }
 
-    // Required stubs
     func session(_ session: WCSession,
                  activationDidCompleteWith activationState: WCSessionActivationState,
                  error: Error?) {}

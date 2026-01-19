@@ -46,7 +46,6 @@ struct Garage: View {
                         Text("Wheels: Not Selected")
                     }
                 }
-                .background(car.getCarColor)
                 
                 ForEach(tabs, id: \.id) { tab in
                     ScrollView{

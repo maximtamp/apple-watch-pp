@@ -103,8 +103,6 @@ struct UseFuel: View {
                         } else {
                             useFuelState = "ShapeNotDone"
                             appData.updatePartProgrss(part: part, context: context, newValue: part.progressValue + amountOfFuelUse)
-                            
-                            
                         }
                     }
                 }

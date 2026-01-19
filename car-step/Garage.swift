@@ -47,7 +47,6 @@ struct Garage: View {
                         Text("Wheels: Not Selected")
                     }
                 }
-                .background(car.getCarColor)
                 .frame(maxWidth: .infinity, maxHeight: 300)
                 
                 HStack{
@@ -118,10 +117,5 @@ struct Garage: View {
 
 
 #Preview {
-    //let appData = AppData()
-    //appData.car = Car(bodyId: UUID(), engineId: UUID(), wheelId: UUID(), carColor: "blue")
-    
-    //return Garage()
-        //.environment(appData)
     Garage()
 }

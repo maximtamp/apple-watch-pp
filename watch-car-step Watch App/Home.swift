@@ -13,7 +13,6 @@ struct Home: View {
     @Environment(\.modelContext) private var context
     @Environment(AppData.self) private var appData
     
-    
     var body: some View {
         if let today = appData.today, let fuel = appData.fuel {
             

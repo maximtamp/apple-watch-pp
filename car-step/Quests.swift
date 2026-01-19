@@ -9,13 +9,16 @@ import SwiftUI
 import SwiftData
 
 struct Quests: View {
+    @EnvironmentObject var manager: HealthKitManager
     @Environment(AppData.self) private var appData
+    @Environment(\.modelContext) private var context
     
     @Query var parts: [Part]
+    @Query var quests: [Quest]
 
     var body: some View {
-        if let quests = appData.todayQuests, let today = appData.today, let fuel = appData.fuel {
-            List(quests.sorted{questA, questB in
+        if let todayQuests = appData.todayQuests, let today = appData.today, let fuel = appData.fuel {
+            List(todayQuests.sorted{questA, questB in
                 let fuelRewardA = questA.fuelReward
                 let fuelRewardB = questB.fuelReward
                 return fuelRewardA < fuelRewardB
@@ -28,6 +31,7 @@ struct Quests: View {
                             if (quest.currentValue >= quest.neededValue) && !quest.claimed {
                                 Button{
                                     appData.claimQuestReward(quest: quest, fuel: fuel)
+                                    appData.checkTodayQuests(context: context, quests: quests)
                                 } label: {
                                     Text("Claim Fuel")
                                         .foregroundStyle(Color.black)
@@ -43,7 +47,6 @@ struct Quests: View {
                             }
                         }
                     }
-                    
                     
                     Divider()
                         .frame(width: 3)
@@ -70,10 +73,16 @@ struct Quests: View {
                 }
             }
             .onAppear{
-                appData.checkTodayQuestProgress(today: today, parts: parts)
+                appData.checkTodayQuests(context: context, quests: quests)
+                appData.checkTodayQuestProgress(todayQuests: todayQuests, today: today, parts: parts)
+                Task {
+                    await manager.checkStepAuthorizationPermission()
+                }
             }
             .refreshable {
-                appData.checkTodayQuestProgress(today: today, parts: parts)
+                appData.checkTodayQuests(context: context, quests: quests)
+                appData.checkTodayQuestProgress(todayQuests: todayQuests, today: today, parts: parts)
+                await manager.checkStepAuthorizationPermission()
             }
         } else {
             ProgressView("Loading Quests")
