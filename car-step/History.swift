@@ -15,7 +15,6 @@ struct History: View {
     @Environment(AppData.self) private var appData
 
     @Query private var days: [Day]
-    @Query private var parts: [Part]
     
     var body: some View {
         List(days, id: \.date) { day in

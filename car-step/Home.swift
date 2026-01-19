@@ -15,10 +15,6 @@ struct Home: View {
     
     @State private var showUseFuelPopover: Bool = false
     @Query var parts: [Part]
-        
-    func todayDate() -> Date {
-        Calendar.current.startOfDay(for: .now)
-    }
     
     func closeUseFuelPopover() {
         showUseFuelPopover = false
@@ -34,6 +30,11 @@ struct Home: View {
                         Button("Claim Step") {
                             fuel.value += today.totalSteps - today.claimedSteps
                             today.claimedSteps += today.totalSteps - today.claimedSteps
+                            
+                            try? context.save()
+                            
+                            WatchConnectivitySync.shared.sendToday(today)
+                            WatchConnectivitySync.shared.sendFuel(fuel)
                         }
                         .buttonStyle(.borderedProminent)
                         .disabled(today.totalSteps - today.claimedSteps == 0)
@@ -46,6 +47,7 @@ struct Home: View {
                             UseFuel(
                                 fuel: fuel,
                                 part: part,
+                                today: today,
                                 onClose: closeUseFuelPopover
                             )
                         }
@@ -62,12 +64,16 @@ struct Home: View {
             .padding()
             .onAppear {
                 appData.updateTodaySteps(context: context, manager: manager, today: today)
+                Task {
+                    await manager.checkStepAuthorizationPermission()
+                }
             }
             .onChange(of: manager.steps) {
                 appData.updateTodaySteps(context: context, manager: manager, today: today)
             }
             .refreshable {
                 appData.updateTodaySteps(context: context, manager: manager, today: today)
+                await manager.checkStepAuthorizationPermission()
             }
             } else {
                 ProgressView("Loading Today's Steps")
@@ -78,7 +84,7 @@ struct Home: View {
 
 #Preview {
     Home()
-        .environmentObject(HealthKitManager(preview: true))
+        .environmentObject(HealthKitManager())
         .environment(AppData())
         .modelContainer(for: Day.self, inMemory: true)
 }

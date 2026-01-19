@@ -13,6 +13,10 @@ import HealthKit
 struct car_stepApp: App {
     @AppStorage("isOnboarding") var isOnboarding: Bool = true
     
+    let container: ModelContainer = {
+        try! ModelContainer(for: Day.self, Part.self, Fuel.self, Car.self, Quest.self)
+    }()
+
     @State private var appData = AppData()
     @StateObject private var manager = HealthKitManager()
     
@@ -24,9 +28,15 @@ struct car_stepApp: App {
                     .environmentObject(manager)
             } else {
                 ContentView()
-                    .modelContainer(for: [Day.self, Part.self, Fuel.self, Car.self])
                     .environmentObject(manager)
                     .environment(appData)
+                    .environment(\.modelContext, container.mainContext)
+                    .onAppear {
+                        WatchConnectivitySync.shared.setup(
+                            context: container.mainContext,
+                            appData: appData
+                        )
+                    }
             }
         }
     }
