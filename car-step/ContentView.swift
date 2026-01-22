@@ -77,8 +77,8 @@ struct ContentView: View {
                     Tab("Garage", systemImage: "door.garage.closed") {
                         Garage()
                     }
-                    Tab("Settings", systemImage: "gear") {
-                        Settings()
+                    Tab("Profiel", systemImage: "person.crop.circle.fill") {
+                        ProfileView()
                     }
                 }
             }

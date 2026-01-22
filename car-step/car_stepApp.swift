@@ -8,6 +8,7 @@
 import SwiftUI
 import SwiftData
 import HealthKit
+import Supabase
 
 @main
 struct car_stepApp: App {
@@ -20,24 +21,78 @@ struct car_stepApp: App {
     @State private var appData = AppData()
     @StateObject private var manager = HealthKitManager()
     
+    @State var isAuthenticated = false
+    @State var needsUsername = false
     
     var body: some Scene {
         WindowGroup {
-            if isOnboarding {
-                Onboarding()
-                    .environmentObject(manager)
-            } else {
-                ContentView()
-                    .environmentObject(manager)
-                    .environment(appData)
-                    .environment(\.modelContext, container.mainContext)
-                    .onAppear {
-                        WatchConnectivitySync.shared.setup(
-                            context: container.mainContext,
-                            appData: appData
+            Group {
+                if isAuthenticated {
+                    if needsUsername {
+                        EditProfile(
+                            onSave: {
+                                needsUsername = false
+                            },
+                            pageTitle: "Create Profile",
+                            buttonLabel: "Create",
+                            username: ""
                         )
+                    } else {
+                        if isOnboarding {
+                            Onboarding()
+                                .environmentObject(manager)
+                        } else {
+                            ContentView()
+                                .environmentObject(manager)
+                                .environment(appData)
+                                .environment(\.modelContext, container.mainContext)
+                                .onAppear {
+                                    WatchConnectivitySync.shared.setup(
+                                        context: container.mainContext,
+                                        appData: appData
+                                    )
+                                }
+                        }
                     }
+                } else {
+                    AuthView()
+                }
             }
+            .task {
+                for await state in supabase.auth.authStateChanges {
+                    if [.initialSession, .signedIn, .signedOut].contains(state.event) {
+                        let isLoggedIn = state.session != nil
+                        isAuthenticated = isLoggedIn
+                        
+                        if isLoggedIn {
+                            await checkUsername(session: state.session!)
+                        }
+                    }
+                }
+            }
+        }
+    }
+    
+    func checkUsername(session: Session) async {
+        do {
+            let response = try await supabase
+                .from("profiles")
+                .select()
+                .eq("id", value: session.user.id)
+                .execute()
+            
+            let data = response.data
+            
+            let profiles = try JSONDecoder().decode([Profile].self, from: data)
+            
+            if let profile = profiles.first {
+                let missing = profile.username == nil || profile.username!.isEmpty
+                needsUsername = missing
+            } else {
+                needsUsername = true
+            }
+        } catch {
+            needsUsername = false
         }
     }
 }
