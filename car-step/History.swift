@@ -29,6 +29,7 @@ struct History: View {
                     VStack {
                         Text("Steps: \(day.totalSteps)")
                         Text("+Fuel: \(day.claimedSteps)")
+                        Text("User: \(day.userId)")
                     }
                     .padding(.horizontal, 8)
                     Spacer()

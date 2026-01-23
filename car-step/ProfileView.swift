@@ -13,6 +13,7 @@ import _SwiftData_SwiftUI
 
 struct ProfileView: View {
     @Environment(AppData.self) private var appData
+    @Environment(\.modelContext) private var context
 
     @Query private var days: [Day]
     @Query private var parts: [Part]
@@ -65,9 +66,10 @@ struct ProfileView: View {
                             }
                         }
                         Button("Sign out", systemImage: "iphone.and.arrow.right.outward", role: .destructive) {
-                          Task {
-                            try? await supabase.auth.signOut()
-                          }
+                            Task {
+                                try? await supabase.auth.signOut()
+                                await appData.resetApp(context: context)
+                            }
                         }
                         .foregroundStyle(Color.red)
                     }

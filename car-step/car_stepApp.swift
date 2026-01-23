@@ -13,12 +13,13 @@ import Supabase
 @main
 struct car_stepApp: App {
     @AppStorage("isOnboarding") var isOnboarding: Bool = true
+    @AppStorage("hasLaunchedBefore") var hasLaunchedBefore: Bool = false
     
     let container: ModelContainer = {
         try! ModelContainer(for: Day.self, Part.self, Fuel.self, Car.self, Quest.self)
     }()
 
-    @State private var appData = AppData()
+    @State private var appData = AppData(currentUserId: UUID())
     @StateObject private var manager = HealthKitManager()
     
     @State var isAuthenticated = false
@@ -59,14 +60,29 @@ struct car_stepApp: App {
                 }
             }
             .task {
+                if !hasLaunchedBefore {
+                    hasLaunchedBefore = true
+                    try? await supabase.auth.signOut()
+                    await appData.resetApp(context: container.mainContext)
+                }
                 for await state in supabase.auth.authStateChanges {
-                    if [.initialSession, .signedIn, .signedOut].contains(state.event) {
-                        let isLoggedIn = state.session != nil
-                        isAuthenticated = isLoggedIn
-                        
-                        if isLoggedIn {
-                            await checkUsername(session: state.session!)
+                    switch state.event {
+                    case .initialSession:
+                        if let session = state.session {
+                            isAuthenticated = true
+                            appData.currentUserId = session.user.id
+                            appData.didJustLogin = false
+                            await checkUsername(session: session)
                         }
+                    case .signedIn:
+                        isAuthenticated = true
+                        appData.currentUserId = state.session!.user.id
+                        appData.didJustLogin = true
+                        await checkUsername(session: state.session!)
+                    case .signedOut:
+                        isAuthenticated = false
+                    default:
+                        break
                     }
                 }
             }

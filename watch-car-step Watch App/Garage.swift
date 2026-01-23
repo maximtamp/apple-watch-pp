@@ -56,7 +56,7 @@ struct Garage: View {
                             }
                             ForEach(
                                 parts
-                                    .filter {$0.type.lowercased() == tab.name.lowercased() && $0.partMade}
+                                    .filter {$0.type.displayName == tab.name && $0.partMade}
                                     .sorted{partA, partB in
                                         if partA.id == car.bodyId || partA.id == car.engineId || partA.id == car.wheelId {
                                             return true
@@ -65,8 +65,8 @@ struct Garage: View {
                                             return false
                                         }
                                         
-                                        let rarityA = rarityOrder.firstIndex(of: partA.rarity) ?? 0
-                                        let rarityB = rarityOrder.firstIndex(of: partB.rarity) ?? 0
+                                        let rarityA = rarityOrder.firstIndex(of: partA.rarity.displayName) ?? 0
+                                        let rarityB = rarityOrder.firstIndex(of: partB.rarity.displayName) ?? 0
                                         return rarityA > rarityB
                                     }
                             ) { part in

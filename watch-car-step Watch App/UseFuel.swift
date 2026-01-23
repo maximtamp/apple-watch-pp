@@ -24,9 +24,7 @@ struct UseFuel: View {
     
     @State private var partProgress: Double = 0
     
-    @State private var createdPartName: String = ""
-    @State private var createdPartType: String = ""
-    @State private var createdPartRarity: String = ""
+    @State private var createdPartRarity: PartRarity = .common
     
     @State private var valuesToPickFrom: [Int] = []
 
@@ -52,8 +50,6 @@ struct UseFuel: View {
                         appData.updateFuel(fuel: fuel, context: context, newValue: fuel.value - amountOfFuelUse)
                         appData.updateTodayUsedFuel(today: today, context: context, newValue: today.usedFuel + amountOfFuelUse)
                         if partProgress == 1.0 {
-                            createdPartName = part.name
-                            createdPartType = part.type
                             createdPartRarity = part.rarity
                             
                             useFuelState = "ShapeDone"
@@ -118,8 +114,8 @@ struct UseFuel: View {
 }
 
 #Preview {
-    let mockPart = Part(name: "Sparky", type: "Wheel", rarity: "Rare", partMade: false, progressValue: 0, maxValue: 10000, creationDate: .now)
-    let mockFuel = Fuel(value: 8000)
-    let mockToday = Day( date: .now, totalSteps: 0, claimedSteps: 0, usedFuel: 0)
+    let mockPart = Part(name: "Sparky", type: .wheel, rarity: .rare, partMade: false, progressValue: 0, maxValue: 10000, creationDate: .now)
+    let mockFuel = Fuel(userId: UUID(), value: 8000)
+    let mockToday = Day(id: UUID(), userId: UUID(), date: .now, totalSteps: 0, claimedSteps: 0, usedFuel: 0)
     UseFuel(fuel: mockFuel, part: mockPart, today: mockToday)
 }

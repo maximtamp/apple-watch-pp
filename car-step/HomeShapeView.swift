@@ -21,6 +21,6 @@ struct HomeShapeView: View {
 }
 
 #Preview {
-    let dummyPart = Part(name: "Sparky", type: "Wheel", rarity: "Rare", partMade: false, progressValue: 0, maxValue: 10000, creationDate: .now)
+    let dummyPart = Part(name: "Sparky", type: .wheel, rarity: .rare, partMade: false, progressValue: 0, maxValue: 10000, creationDate: .now)
     HomeShapeView(part: dummyPart)
 }

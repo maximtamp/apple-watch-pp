@@ -30,25 +30,28 @@ struct ContentView: View {
                         Garage()
                     }
                 }
+                .onAppear {
+                    appData.setup(
+                        context: context,
+                        manager: manager,
+                        days: days,
+                        parts: parts,
+                        fuels: fuels,
+                        cars: cars,
+                    )
+                    manager.fetchTodaySteps()
+                }
             } else {
-                VStack(spacing: 12){
+                VStack(spacing: 8){
                     Text("Not Setup")
                         .font(.title3 .bold())
-                    Text("On your phone, go to Settings -> Setup Watch")
+                    Text("On your phone, go to Profile -> 3 dots -> Setup Watch")
                         .multilineTextAlignment(.center)
                 }
             }
         }
         .onAppear {
-            appData.setup(
-                context: context,
-                manager: manager,
-                days: days,
-                parts: parts,
-                fuels: fuels,
-                cars: cars,
-            )
-            manager.fetchTodaySteps()
+            
         }
     }
 }

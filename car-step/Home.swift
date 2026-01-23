@@ -33,6 +33,10 @@ struct Home: View {
                             
                             try? context.save()
                             
+                            Task{
+                                await SupabaseService.shared.updateDay(today)
+                                await SupabaseService.shared.updateFuel(fuel)
+                            }
                             WatchConnectivitySync.shared.sendToday(today)
                             WatchConnectivitySync.shared.sendFuel(fuel)
                         }
@@ -85,6 +89,6 @@ struct Home: View {
 #Preview {
     Home()
         .environmentObject(HealthKitManager())
-        .environment(AppData())
+        .environment(AppData(currentUserId: UUID()))
         .modelContainer(for: Day.self, inMemory: true)
 }

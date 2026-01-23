@@ -14,7 +14,7 @@ struct watch_car_step_Watch_AppApp: App {
         try! ModelContainer(for: Day.self, Part.self, Fuel.self, Car.self)
     }()
 
-    @State private var appData = AppData()
+    @State private var appData = AppData(currentUserId: UUID())
     @StateObject private var manager = HealthKitManager()
 
     var body: some Scene {

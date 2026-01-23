@@ -83,16 +83,25 @@ struct ContentView: View {
                 }
             }
             .onAppear {
-                appData.setup(
-                    context: context,
-                    manager: manager,
-                    days: days,
-                    parts: parts,
-                    fuels: fuels,
-                    cars: cars,
-                )
-                appData.setupQuests(context: context, quests: quests)
-                manager.fetchTodaySteps()
+                Task {
+                    if appData.didJustLogin {
+                        let remote = await appData.loadFromSupabase(context: context, existingDays: days, existingParts: parts, existingFuels: fuels, existingCars: cars, existingQuests: quests)
+                        print(remote)
+                        
+                        appData.didJustLogin = false
+                    }
+                                        
+                    appData.setup(
+                        context: context,
+                        manager: manager,
+                        days: days,
+                        parts: parts,
+                        fuels: fuels,
+                        cars: cars,
+                    )
+                    appData.setupQuests(context: context, quests: quests)
+                    manager.fetchTodaySteps()
+                }
             }
         } else {
             Authorization()
@@ -103,6 +112,6 @@ struct ContentView: View {
 #Preview {
     ContentView()
         .environmentObject(HealthKitManager())
-        .environment(AppData())
+        .environment(AppData(currentUserId: UUID()))
         .modelContainer(for: Day.self, inMemory: true)
 }
