@@ -43,6 +43,28 @@ final class SupabaseService {
         }
     }
     
+    func fetchLastSevenDays(userId: UUID) async -> [Day] {
+        do {
+            let response = try await supabase
+                .from("days")
+                .select()
+                .eq("user_id", value: userId)
+                .gte("date", value: Date().addingTimeInterval(-7 * 24 * 60 * 60))
+                .execute()
+            
+            let decoder = JSONDecoder()
+            let formatter = DateFormatter()
+            formatter.dateFormat = "yyyy-MM-dd"
+            decoder.dateDecodingStrategy = .formatted(formatter)
+
+            let dtos = try decoder.decode([DayDTO].self, from: response.data)
+            return dtos.map{Day(dto: $0)}
+        } catch {
+            print("appel")
+            return []
+        }
+    }
+    
     func fetchParts(userId: UUID) async -> [Part] {
         do {
             let response = try await supabase
