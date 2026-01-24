@@ -99,7 +99,7 @@ struct car_stepApp: App {
             
             let data = response.data
             
-            let profiles = try JSONDecoder().decode([Profile].self, from: data)
+            let profiles = try JSONDecoder().decode([ProfileDTO].self, from: data)
             
             if let profile = profiles.first {
                 let missing = profile.username == nil || profile.username!.isEmpty

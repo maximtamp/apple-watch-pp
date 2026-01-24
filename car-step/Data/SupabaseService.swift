@@ -114,6 +114,49 @@ final class SupabaseService {
         }
     }
     
+    func fetchAllProfiles() async -> [Profile] {
+        do {
+            let response = try await supabase
+                .from("profiles")
+                .select()
+                .execute()
+
+            let dtos = try JSONDecoder().decode([ProfileDTO].self, from: response.data)
+            return dtos.map{Profile(dto: $0)}
+        } catch {
+            return []
+        }
+    }
+    
+    func fetchOthersProfiles(userId: UUID) async -> [Profile] {
+        do {
+            let response = try await supabase
+                .from("profiles")
+                .select()
+                .neq("id", value: userId)
+                .execute()
+
+            let dtos = try JSONDecoder().decode([ProfileDTO].self, from: response.data)
+            return dtos.map{Profile(dto: $0)}
+        } catch {
+            return []
+        }
+    }
+    
+    func fetchOFriends(userId: UUID) async -> [Friend] {
+        do {
+            let response = try await supabase
+                .from("friends")
+                .select()
+                .or("user_id.eq.\(userId),friend_id.eq.\(userId)")
+                .execute()
+
+            let dtos = try JSONDecoder().decode([FriendDTO].self, from: response.data)
+            return dtos.map{Friend(dto: $0)}
+        } catch {
+            return []
+        }
+    }
     
     //INSERT
     func insertDay(_ day: Day) async {
@@ -221,6 +264,23 @@ final class SupabaseService {
         }
     }
     
+    func insertFriend(_ friend: Friend) async {
+        do {
+            let friendToSend = FriendInsert(
+                id: friend.id.uuidString,
+                user_id: friend.userId.uuidString,
+                friend_id: friend.friendId.uuidString,
+                is_accepted: friend.isAccepted,
+            )
+            _ = try await supabase
+                .from("friends")
+                .insert(friendToSend)
+                .execute()
+        } catch {
+            print("Error inserting friend:", error)
+        }
+    }
+    
     
     //UPDATE
     func updateDay(_ day: Day) async {
@@ -305,6 +365,36 @@ final class SupabaseService {
                 .execute()
         } catch {
             print("Error inserting quest:", error)
+        }
+    }
+    
+    func updateFriend(_ friend: Friend) async {
+        do {
+            let friendUpdate = FriendUpdate(
+                is_accepted: friend.isAccepted
+            )
+
+            _ = try await supabase
+                .from("friends")
+                .update(friendUpdate)
+                .eq("id", value: friend.id.uuidString)
+                .execute()
+        } catch {
+            print("Error updating friend:", error)
+        }
+    }
+    
+    
+    //DELETE
+    func deleteFriend(_ friend: Friend) async {
+        do {
+            _ = try await supabase
+                .from("friends")
+                .delete()
+                .eq("id", value: friend.id.uuidString)
+                .execute()
+        } catch {
+            print("Error deleting friend:", error)
         }
     }
 }

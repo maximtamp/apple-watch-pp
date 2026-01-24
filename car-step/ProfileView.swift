@@ -102,7 +102,7 @@ struct ProfileView: View {
         do {
             let currentUser = try await supabase.auth.session.user
 
-            let profile: Profile =
+            let profileDTO: ProfileDTO =
             try await supabase
                 .from("profiles")
                 .select()
@@ -110,7 +110,9 @@ struct ProfileView: View {
                 .single()
                 .execute()
                 .value
-
+            
+            let profile = Profile(dto: profileDTO)
+            
             username = profile.username ?? ""
 
             if let avatarURL = profile.avatarURL, !avatarURL.isEmpty {

@@ -68,14 +68,17 @@ struct ContentView: View {
                     Tab("Home", systemImage: "house") {
                         Home()
                     }
-                    Tab("History", systemImage: "calendar") {
+                    /*Tab("History", systemImage: "calendar") {
                         History()
-                    }
+                    }*/
                     Tab("Quests", systemImage: "scroll.fill") {
                         Quests()
                     }
                     Tab("Garage", systemImage: "door.garage.closed") {
                         Garage()
+                    }
+                    Tab("Friends", systemImage: "person.3.fill") {
+                        Friends()
                     }
                     Tab("Profiel", systemImage: "person.crop.circle.fill") {
                         ProfileView()

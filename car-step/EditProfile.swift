@@ -117,7 +117,7 @@ struct EditProfile: View {
                 .execute()
             
             let data = response.data
-            let profiles = try JSONDecoder().decode([Profile].self, from: data)
+            let profiles = try JSONDecoder().decode([ProfileDTO].self, from: data)
             return profiles.isEmpty
             
         } catch {
