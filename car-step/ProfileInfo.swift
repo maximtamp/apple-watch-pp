@@ -13,6 +13,8 @@ struct ProfileInfo: View {
     var username: String?
     var avatarURL: String?
     
+    var onRemoveFriend: (() async -> Void)? = nil
+    
     @State private var fuel: Int = 0
     @State private var totalParts: Int = 0
     @State private var questCompleted: Int = 0
@@ -49,12 +51,9 @@ struct ProfileInfo: View {
             bodyPart = nil
             enginePart = nil
             wheelPart = nil
-            print("Geen auto gevonden voor deze user")
         }
         
         lastSevenDays = await SupabaseService.shared.fetchLastSevenDays(userId: userId)
-        lastSevenDaysTotalSteps = lastSevenDays.reduce(0) { $0 + $1.totalSteps }
-        lastSevenDaysTotalFuelUsed = lastSevenDays.reduce(0) { $0 + $1.usedFuel }
         
         if let avatarURL, !avatarURL.isEmpty {
             try? await downloadImage(path: avatarURL)
@@ -139,33 +138,7 @@ struct ProfileInfo: View {
                         .cornerRadius(12)
                     }
                     
-                    VStack(alignment: .leading){
-                        Text("Last 7 Days")
-                        
-                        HStack {
-                            Text("Total steps: \(lastSevenDaysTotalSteps)")
-                            Text("Total fuel used: \(lastSevenDaysTotalFuelUsed)")
-                        }
-                        
-                        ForEach(lastSevenDays, id: \.self) { day in
-                            HStack {
-                                VStack {
-                                    Text("Total steps: \(day.totalSteps)")
-                                    Text("Total fuel used: \(day.usedFuel)")
-                                }
-                                Spacer()
-                                Text(day.date.formatted(date: .abbreviated, time: .omitted))
-                            }
-                            .padding()
-                            .frame(maxWidth: .infinity)
-                            .background(Color.gray)
-                            .padding(.horizontal, 4)
-                        }
-                    }
-                    .padding()
-                    .frame(maxWidth: .infinity)
-                    .background(Color.white)
-                    .cornerRadius(12)
+                    SevenDaysGraphic(days: lastSevenDays)
                     
                     Spacer()
                 }

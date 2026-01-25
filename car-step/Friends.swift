@@ -104,54 +104,59 @@ struct Friends: View {
                                         .filter { $0.username?.localizedCaseInsensitiveContains(friendSearch) == true }
                                         , id: \.id)
                                 { profile in
-                                    HStack {
-                                        Text(profile.username ?? "")
-                                        Spacer()
-                                        if !friends.contains( where: { $0.id == profile.id } ) {
-                                            if !friendsData.contains( where: { $0.friendId == profile.id || $0.userId == profile.id } ) {
-                                                Button {
-                                                    Task{
-                                                        isLoading = true
-                                                        defer { isLoading = false }
-                                                        
-                                                        let newFriend = Friend(
-                                                            id: UUID(),
-                                                            userId: appData.currentUserId,
-                                                            friendId: profile.id,
-                                                            isAccepted: false
-                                                        )
-                                                        await SupabaseService.shared.insertFriend(newFriend)
-                                                        
-                                                        await prepFriends(userId: appData.currentUserId)
-                                                    }
-                                                } label: {
-                                                    HStack {
-                                                        if isLoading {
-                                                            ProgressView()
-                                                        } else {
-                                                            Text("Add")
+                                    NavigationLink {
+                                        ProfileInfo(userId: profile.id, username: profile.username, avatarURL: profile.avatarURL)
+                                    } label: {
+                                        HStack {
+                                            Text(profile.username ?? "")
+                                            Spacer()
+                                            if !friends.contains( where: { $0.id == profile.id } ) {
+                                                if !friendsData.contains( where: { $0.friendId == profile.id || $0.userId == profile.id } ) {
+                                                    Button {
+                                                        Task{
+                                                            isLoading = true
+                                                            defer { isLoading = false }
+                                                            
+                                                            let newFriend = Friend(
+                                                                id: UUID(),
+                                                                userId: appData.currentUserId,
+                                                                friendId: profile.id,
+                                                                isAccepted: false
+                                                            )
+                                                            await SupabaseService.shared.insertFriend(newFriend)
+                                                            
+                                                            await prepFriends(userId: appData.currentUserId)
                                                         }
+                                                    } label: {
+                                                        HStack {
+                                                            if isLoading {
+                                                                ProgressView()
+                                                            } else {
+                                                                Text("Add")
+                                                            }
+                                                        }
+                                                        .frame(width: 32, height: 8)
+                                                        .padding()
+                                                        .background(isLoading ? Color.gray.opacity(0.5) : Color.blue)
+                                                        .foregroundStyle(Color.white)
+                                                        .cornerRadius(12)
                                                     }
-                                                    .frame(width: 32, height: 8)
-                                                    .padding()
-                                                    .background(isLoading ? Color.gray.opacity(0.5) : Color.blue)
-                                                    .foregroundStyle(Color.white)
-                                                    .cornerRadius(12)
+                                                    .disabled(isLoading)
+                                                    
+                                                } else {
+                                                    Text("Requested")
+                                                        .foregroundStyle(Color.black.opacity(0.5))
                                                 }
-                                                .disabled(isLoading)
-                                                
                                             } else {
-                                                Text("Requested")
+                                                Text("Friend")
                                                     .foregroundStyle(Color.black.opacity(0.5))
                                             }
-                                        } else {
-                                            Text("Friend")
-                                                .foregroundStyle(Color.black.opacity(0.5))
                                         }
+                                        .padding()
+                                        .background(Color.white)
+                                        .cornerRadius(12)
                                     }
-                                    .padding()
-                                    .background(Color.white)
-                                    .cornerRadius(12)
+                                    
                                 }
                             }
                             .padding()
@@ -171,6 +176,7 @@ struct Friends: View {
                                         .cornerRadius(12)
                                         .padding()
                                     }
+                                    
                                 }
                             } else {
                                 Text("No friends yet, search friends to add")
@@ -187,7 +193,6 @@ struct Friends: View {
             .onAppear {
                 Task{
                     await prepFriends(userId: appData.currentUserId)
-                    friendSearch = ""
                 }
             }
             .refreshable {

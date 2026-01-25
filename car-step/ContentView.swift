@@ -68,9 +68,6 @@ struct ContentView: View {
                     Tab("Home", systemImage: "house") {
                         Home()
                     }
-                    /*Tab("History", systemImage: "calendar") {
-                        History()
-                    }*/
                     Tab("Quests", systemImage: "scroll.fill") {
                         Quests()
                     }

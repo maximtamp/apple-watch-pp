@@ -17,8 +17,12 @@ struct ProfileView: View {
 
     @Query private var days: [Day]
     @Query private var parts: [Part]
+    @Query private var quests: [Quest]
     
-    @State var username = ""
+    @State var username: String = ""
+    @State var questCompleted: Int = 0
+    @State var totalParts: Int = 0
+    @State var lastSevenDays: [Day] = []
 
     @State var isLoading = false
     @State private var isEditing = false
@@ -28,53 +32,73 @@ struct ProfileView: View {
 
     var body: some View {
         NavigationStack {
-            VStack(alignment: .leading){
-                HStack(spacing: 20) {
-                    Group {
-                        if let avatarImage {
-                            avatarImage.image.resizable()
-                        } else {
-                            Color.black.opacity(0.2)
+            VStack {
+                ScrollView{
+                    VStack(spacing: 20) {
+                        Group {
+                            if let avatarImage {
+                                avatarImage.image.resizable()
+                            } else {
+                                Color.black.opacity(0.2)
+                            }
                         }
+                        .scaledToFill()
+                        .frame(width: 160, height: 160)
+                        .clipShape(Circle())
+                        Text(username)
+                            .font(.headline)
+                        Spacer()
                     }
-                    .scaledToFill()
-                    .frame(width: 80, height: 80)
-                    .clipShape(Circle())
-                    Text("@\(username)")
-                        .font(.headline)
+                    .frame(maxWidth: .infinity)
+                    
+                    HStack {
+                        Spacer()
+                        VStack {
+                            Text("\(totalParts)")
+                                .font(.largeTitle)
+                            Text("Total Parts")
+                        }
+                        Spacer()
+                        VStack {
+                            Text("\(questCompleted)")
+                                .font(.largeTitle)
+                            Text("Quest Completed")
+                        }
+                        Spacer()
+                    }
+                    .padding()
+                    .frame(maxWidth: .infinity)
+                    .background(Color.white)
+                    .cornerRadius(12)
+                    
+                    SevenDaysGraphic(days: days)
+                    
                     Spacer()
                 }
-                .padding()
-                .frame(maxWidth: .infinity)
-                .background(Color.white)
-                .cornerRadius(20)
-                .padding(20)
-                
-                Spacer()
+                .toolbar(content: {
+                    ToolbarItem {
+                        Menu("Actions", systemImage: "ellipsis") {
+                            Button("Edit Profile", systemImage: "pencil") {
+                                isEditing = true
+                            }
+                            Button("Sync Watch", systemImage: "applewatch.radiowaves.left.and.right") {
+                                if let car = appData.car, let fuel = appData.fuel {
+                                    WatchConnectivitySync.shared.sendSetup(days: days, parts: parts, fuel: fuel, car: car)
+                                }
+                            }
+                            Button("Sign out", systemImage: "iphone.and.arrow.right.outward", role: .destructive) {
+                                Task {
+                                    try? await supabase.auth.signOut()
+                                    await appData.resetApp(context: context)
+                                }
+                            }
+                            .foregroundStyle(Color.red)
+                        }
+                    }
+                })
             }
             .frame(maxWidth: .infinity, maxHeight: .infinity)
             .background(Color.black.opacity(0.05))
-            .toolbar(content: {
-                ToolbarItem {
-                    Menu("Actions", systemImage: "ellipsis") {
-                        Button("Edit Profile", systemImage: "pencil") {
-                            isEditing = true
-                        }
-                        Button("Sync Watch", systemImage: "applewatch.radiowaves.left.and.right") {
-                            if let car = appData.car, let fuel = appData.fuel {
-                                WatchConnectivitySync.shared.sendSetup(days: days, parts: parts, fuel: fuel, car: car)
-                            }
-                        }
-                        Button("Sign out", systemImage: "iphone.and.arrow.right.outward", role: .destructive) {
-                            Task {
-                                try? await supabase.auth.signOut()
-                                await appData.resetApp(context: context)
-                            }
-                        }
-                        .foregroundStyle(Color.red)
-                    }
-                }
-            })
             .onChange(of: imageSelection) { _, newValue in
                 guard let newValue else { return }
                 loadTransferable(from: newValue)
@@ -82,6 +106,11 @@ struct ProfileView: View {
         }
         .task {
             await getInitialProfile()
+        }
+        .onAppear {
+            questCompleted = quests.filter { $0.claimed }.count
+                            
+            totalParts = parts.filter { $0.partMade }.count
         }
         .popover(isPresented: $isEditing) {
             EditProfile(
