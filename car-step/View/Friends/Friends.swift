@@ -78,7 +78,7 @@ struct Friends: View {
                                     }
                                 }
                                 .padding()
-                                .background(Color.white)
+                                .background(Color("PrimaryAppColor"))
                                 .cornerRadius(12)
                                 .padding()
                             }
@@ -91,11 +91,11 @@ struct Friends: View {
                             .textContentType(.username)
                             .textInputAutocapitalization(.never)
                             .autocorrectionDisabled()
-                            .background(Color.white)
                             .padding(12)
-                            .background(Color.white)
+                            .background(Color("PrimaryAppColor"))
                             .cornerRadius(12)
-                            .padding(.horizontal, 20)
+                            .padding(.horizontal, 16)
+                            .padding(.bottom, 16)
                         
                         if friendSearch.count > 0 {
                             VStack{
@@ -109,6 +109,7 @@ struct Friends: View {
                                     } label: {
                                         HStack {
                                             Text(profile.username ?? "")
+                                                .foregroundStyle(Color("SecondaryAppColor"))
                                             Spacer()
                                             if !friends.contains( where: { $0.id == profile.id } ) {
                                                 if !friendsData.contains( where: { $0.friendId == profile.id || $0.userId == profile.id } ) {
@@ -138,28 +139,28 @@ struct Friends: View {
                                                         .frame(width: 32, height: 8)
                                                         .padding()
                                                         .background(isLoading ? Color.gray.opacity(0.5) : Color.blue)
-                                                        .foregroundStyle(Color.white)
+                                                        .foregroundStyle(Color("PrimaryAppColor"))
                                                         .cornerRadius(12)
                                                     }
                                                     .disabled(isLoading)
                                                     
                                                 } else {
                                                     Text("Requested")
-                                                        .foregroundStyle(Color.black.opacity(0.5))
+                                                        .foregroundStyle(Color("SecondaryAppColor").opacity(0.5))
                                                 }
                                             } else {
                                                 Text("Friend")
-                                                    .foregroundStyle(Color.black.opacity(0.5))
+                                                    .foregroundStyle(Color("SecondaryAppColor").opacity(0.5))
                                             }
                                         }
                                         .padding()
-                                        .background(Color.white)
+                                        .background(Color("PrimaryAppColor"))
                                         .cornerRadius(12)
                                     }
                                     
                                 }
                             }
-                            .padding()
+                            .padding(.horizontal, 16)
                         } else {
                             if !friends.isEmpty {
                                 ForEach(friends, id: \.id) { profile in
@@ -168,13 +169,14 @@ struct Friends: View {
                                     } label: {
                                         HStack{
                                             Text(profile.username ?? "")
+                                                .foregroundStyle(Color("SecondaryAppColor"))
                                             Spacer()
                                         }
                                         .frame(maxWidth: .infinity)
                                         .padding()
-                                        .background(Color.white)
+                                        .background(Color("PrimaryAppColor"))
                                         .cornerRadius(12)
-                                        .padding()
+                                        .padding(.horizontal, 16)
                                     }
                                     
                                 }
@@ -189,7 +191,7 @@ struct Friends: View {
             }
             .frame(maxWidth: .infinity, maxHeight: .infinity)
             .padding(.vertical, 30)
-            .background(Color.black.opacity(0.05))
+            .background(Color("BackgroundAppColor"))
             .onAppear {
                 Task{
                     await prepFriends(userId: appData.currentUserId)

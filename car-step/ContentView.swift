@@ -21,69 +21,79 @@ struct ContentView: View {
     @Query private var fuels: [Fuel]
     @Query private var cars: [Car]
     @Query private var quests: [Quest]
+    
+    @State var isLoading = true
             
     var body: some View {
         if isAllowedReadingSteps {
-            VStack{
-                HStack {
-                    HStack{
-                        ZStack {
-                            Image(systemName: "shoeprints.fill")
-                                .font(.system(size: 20))
-                        }
-                        .frame(width: 32, height: 32)
-                        .background(Color.blue.opacity(0.5))
-                        .cornerRadius(90)
-                        Text("\(appData.today?.totalSteps ?? 0)")
-                    }
+            VStack {
+                if !isLoading {
+                    VStack{
+                        HStack {
+                            HStack{
+                                ZStack {
+                                    Image(systemName: "shoeprints.fill")
+                                        .font(.system(size: 20))
+                                }
+                                .frame(width: 32, height: 32)
+                                .background(Color.blue.opacity(0.5))
+                                .cornerRadius(90)
+                                Text("\(appData.today?.totalSteps ?? 0)")
+                            }
 
-                    Spacer()
-                    
-                    HStack{
-                        ZStack {
-                            Image(systemName: "hand.point.up.left.fill")
-                                .font(.system(size: 20))
+                            Spacer()
+                            
+                            HStack{
+                                ZStack {
+                                    Image(systemName: "hand.point.up.left.fill")
+                                        .font(.system(size: 20))
+                                }
+                                .frame(width: 32, height: 32)
+                                .background(Color.yellow.opacity(0.5))
+                                .cornerRadius(90)
+                                Text("\((appData.today?.totalSteps ?? 0) - (appData.today?.claimedSteps ?? 0))")
+                            }
+                            
+                            Spacer()
+                            
+                            HStack{
+                                ZStack {
+                                    Image(systemName: "bolt.fill")
+                                        .font(.system(size: 20))
+                                }
+                                .frame(width: 32, height: 32)
+                                .background(Color.red.opacity(0.5))
+                                .cornerRadius(90)
+                                Text("\(appData.fuel?.value ?? 0)")
+                            }
                         }
-                        .frame(width: 32, height: 32)
-                        .background(Color.yellow.opacity(0.5))
-                        .cornerRadius(90)
-                        Text("\((appData.today?.totalSteps ?? 0) - (appData.today?.claimedSteps ?? 0))")
-                    }
-                    
-                    Spacer()
-                    
-                    HStack{
-                        ZStack {
-                            Image(systemName: "bolt.fill")
-                                .font(.system(size: 20))
+                        .padding(.horizontal)
+                        TabView {
+                            Tab("Home", systemImage: "house") {
+                                Home()
+                            }
+                            Tab("Quests", systemImage: "scroll.fill") {
+                                Quests()
+                            }
+                            Tab("Garage", systemImage: "door.garage.closed") {
+                                Garage()
+                            }
+                            Tab("Friends", systemImage: "person.3.fill") {
+                                Friends()
+                            }
+                            Tab("Profiel", systemImage: "person.crop.circle.fill") {
+                                ProfileView()
+                            }
                         }
-                        .frame(width: 32, height: 32)
-                        .background(Color.red.opacity(0.5))
-                        .cornerRadius(90)
-                        Text("\(appData.fuel?.value ?? 0)")
                     }
-                }
-                .padding(.horizontal)
-                TabView {
-                    Tab("Home", systemImage: "house") {
-                        Home()
-                    }
-                    Tab("Quests", systemImage: "scroll.fill") {
-                        Quests()
-                    }
-                    Tab("Garage", systemImage: "door.garage.closed") {
-                        Garage()
-                    }
-                    Tab("Friends", systemImage: "person.3.fill") {
-                        Friends()
-                    }
-                    Tab("Profiel", systemImage: "person.crop.circle.fill") {
-                        ProfileView()
-                    }
+                } else {
+                    ProgressView()
                 }
             }
             .onAppear {
                 Task {
+                    isLoading = true
+                    
                     if appData.didJustLogin {
                         let remote = await appData.loadFromSupabase(context: context, existingDays: days, existingParts: parts, existingFuels: fuels, existingCars: cars, existingQuests: quests)
                         print(remote)
@@ -101,6 +111,8 @@ struct ContentView: View {
                     )
                     appData.setupQuests(context: context, quests: quests)
                     manager.fetchTodaySteps()
+                    
+                    isLoading = false
                 }
             }
         } else {

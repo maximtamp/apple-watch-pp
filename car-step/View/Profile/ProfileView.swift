@@ -68,7 +68,7 @@ struct ProfileView: View {
                     }
                     .padding()
                     .frame(maxWidth: .infinity)
-                    .background(Color.white)
+                    .background(Color("PrimaryAppColor"))
                     .cornerRadius(12)
                     
                     SevenDaysGraphic(days: days)
@@ -91,6 +91,7 @@ struct ProfileView: View {
                                     try? await supabase.auth.signOut()
                                     await appData.resetApp(context: context)
                                 }
+                                WatchConnectivitySync.shared.sendLogOut()
                             }
                             .foregroundStyle(Color.red)
                         }
@@ -98,7 +99,7 @@ struct ProfileView: View {
                 })
             }
             .frame(maxWidth: .infinity, maxHeight: .infinity)
-            .background(Color.black.opacity(0.05))
+            .background(Color("BackgroundAppColor"))
             .onChange(of: imageSelection) { _, newValue in
                 guard let newValue else { return }
                 loadTransferable(from: newValue)

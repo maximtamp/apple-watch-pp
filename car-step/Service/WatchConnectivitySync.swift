@@ -147,6 +147,25 @@ final class WatchConnectivitySync: NSObject, WCSessionDelegate {
         ])
     }
     
+    func sendNewPart(_ part: Part) {
+        let partData = [
+            "id": part.id.uuidString,
+            "name": part.name,
+            "type": part.type.rawValue,
+            "rarity": part.rarity.rawValue,
+            "partMade": part.partMade,
+            "progressValue": part.progressValue,
+            "maxValue": part.maxValue,
+            "speedPoints": part.speedPoints,
+            "creationDate": part.creationDate.timeIntervalSince1970
+        ] as [String : Any]
+        
+        send([
+            "dataType": "newPart",
+            "part": partData
+        ])
+    }
+    
     func sendFuel(_ fuel: Fuel) {
         let fuelData = [
             "value": fuel.value
@@ -169,6 +188,10 @@ final class WatchConnectivitySync: NSObject, WCSessionDelegate {
             "dataType": "car",
             "car": carData
         ])
+    }
+    
+    func sendLogOut() {
+        send(["dataType": "logOut"])
     }
 
     func session(_ session: WCSession, didReceiveMessage message: [String : Any]) {
@@ -194,10 +217,14 @@ final class WatchConnectivitySync: NSObject, WCSessionDelegate {
                 self.handleParts(data)
             case "part":
                 self.handlePart(data)
+            case "newPart":
+                self.handleNewPart(data)
             case "fuel":
                 self.handleFuel(data)
             case "car":
                 self.handleCar(data)
+            case "logOut":
+                self.handleLogOut()
             default:
                 break
             }
@@ -346,6 +373,44 @@ final class WatchConnectivitySync: NSObject, WCSessionDelegate {
         }
     }
     
+    private func handleNewPart(_ data: [String: Any]) {
+        guard let part = data["part"] as? [String: Any],
+              let idStr = part["id"] as? String,
+              let id = UUID(uuidString: idStr),
+              let name = part["name"] as? String,
+              let typeStr = part["type"] as? String,
+              let type = PartType(rawValue: typeStr),
+              let rarityStr = part["rarity"] as? String,
+              let rarity = PartRarity(rawValue: rarityStr),
+              let partMade = part["partMade"] as? Bool,
+              let progressValue = part["progressValue"] as? Int,
+              let maxValue = part["maxValue"] as? Int,
+              let speedPoints = part["speedPoints"] as? Int,
+              let creationDate = part["creationDate"] as? TimeInterval,
+              let context,
+              let appData else { return }
+        print("\(appData.currentUserId)")
+        let newPart = Part(
+            id: id,
+            userId: appData.currentUserId,
+            name: name,
+            type: type,
+            rarity: rarity,
+            partMade: partMade,
+            progressValue: progressValue,
+            maxValue: maxValue,
+            speedPoints: speedPoints,
+            creationDate: Date(timeIntervalSince1970: creationDate)
+        )
+
+        context.insert(newPart)
+        appData.part = newPart
+        
+        Task {
+            await SupabaseService.shared.insertPart(newPart)
+        }
+    }
+    
     private func handleFuel(_ data: [String: Any]) {
         guard let fuel = data["fuel"] as? [String: Any],
               let value = fuel["value"] as? Int else { return }
@@ -390,6 +455,15 @@ final class WatchConnectivitySync: NSObject, WCSessionDelegate {
             context.insert(newCar)
             appData?.car = newCar
         }
+    }
+    
+    private func handleLogOut() {
+        if let appData, let context {
+            Task {
+                await appData.resetApp(context: context)
+            }
+        }
+        UserDefaults.standard.set(false, forKey: "isSetup")
     }
 
     func session(_ session: WCSession,

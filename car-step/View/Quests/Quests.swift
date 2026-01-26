@@ -40,7 +40,7 @@ struct Quests: View {
                                         .cornerRadius(90)
                                 }
                             } else {
-                                ProgressView(value: Double(quest.currentValue) / Double(quest.neededValue))
+                                ProgressView(value: min(1.0, Double(quest.currentValue) / Double(quest.neededValue)))
                                     .accentColor(quest.currentValue >= quest.neededValue ? Color.green : Color.blue)
                                 Text("\(quest.currentValue)/\(quest.neededValue)")
                                     .font(.caption)

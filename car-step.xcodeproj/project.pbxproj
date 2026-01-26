@@ -86,20 +86,20 @@
 		1B0164B22F1A8FBC00BD09BD /* Exceptions for "car-step" folder in "watch-car-step Watch App" target */ = {
 			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
 			membershipExceptions = (
-				Data/AppData.swift,
 				Data/Car.swift,
 				Data/Day.swift,
 				Data/Friend.swift,
 				Data/Fuel.swift,
-				Data/HealthKitManager.swift,
-				Data/Models.swift,
 				Data/Part.swift,
 				Data/PartShapes.swift,
+				Data/Profile.swift,
 				Data/Quest.swift,
 				Data/Race.swift,
-				Data/Supabase.swift,
-				Data/SupabaseService.swift,
-				Data/WatchConnectivitySync.swift,
+				Service/AppData.swift,
+				Service/HealthKitManager.swift,
+				Service/Supabase.swift,
+				Service/SupabaseService.swift,
+				Service/WatchConnectivitySync.swift,
 			);
 			target = 1BF63D402F181C84008F8F52 /* watch-car-step Watch App */;
 		};

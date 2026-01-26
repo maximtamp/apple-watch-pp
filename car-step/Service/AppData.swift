@@ -115,9 +115,6 @@ class AppData {
     private func setupCar(context: ModelContext, cars: [Car], parts: [Part]) {
         if let existingCar = cars.first {
             car = existingCar
-            Task{
-                await SupabaseService.shared.insertCar(existingCar)
-            }
         } else {
             let newCar = Car(
                 userId: currentUserId,
@@ -127,10 +124,6 @@ class AppData {
             )
             context.insert(newCar)
             car = newCar
-            
-            Task{
-                await SupabaseService.shared.insertCar(newCar)
-            }
         }
     }
     
@@ -173,9 +166,8 @@ class AppData {
                 await SupabaseService.shared.insertPart(defaultBody)
                 await SupabaseService.shared.insertPart(defaultEngine)
                 await SupabaseService.shared.insertPart(defaultWheel)
+                placeDefaultPartsInCar(bodyId: defaultBody.id, engineId: defaultEngine.id, wheelId: defaultWheel.id)
             }
-            
-            placeDefaultPartsInCar(bodyId: defaultBody.id, engineId: defaultEngine.id, wheelId: defaultWheel.id)
             
             if let randomPart = Part.possibleParts.randomElement(){
                 let newPart = Part(
@@ -203,6 +195,10 @@ class AppData {
         self.car?.bodyId = bodyId
         self.car?.engineId = engineId
         self.car?.wheelId = wheelId
+        
+        Task{
+            await SupabaseService.shared.insertCar(self.car!)
+        }
     }
     
     func setupQuests(context: ModelContext, quests: [Quest]){
@@ -291,7 +287,7 @@ class AppData {
         part.progressValue = part.maxValue
         part.partMade = true
         part.creationDate = .now
-        
+        WatchConnectivitySync.shared.sendPart(part)
         Task {
             await SupabaseService.shared.updatePart(part)
         }
@@ -310,7 +306,7 @@ class AppData {
             )
             context.insert(newPart)
             self.part = newPart
-            WatchConnectivitySync.shared.sendPart(part)
+            WatchConnectivitySync.shared.sendNewPart(newPart)
             Task {
                 await SupabaseService.shared.insertPart(newPart)
             }
@@ -451,9 +447,5 @@ class AppData {
 
         currentUserId = UUID()
         didJustLogin = false
-    }
-    
-    func setUserIdInStorage(_ userId: String){
-        
     }
 }

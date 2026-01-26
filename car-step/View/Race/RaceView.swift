@@ -104,7 +104,6 @@ struct RaceView: View {
         else {
             errorMessage = "Opponent has no car. Try again."
             noValidOpponents.append(opponent)
-            print("Opponent no a car. Try again.")
             return
         }
         
@@ -121,7 +120,6 @@ struct RaceView: View {
             let userWheel = parts.first(where: {$0.id == car.bodyId})
         else {
             errorMessage = "You don't have a car yet. Restart the app."
-            print("You don't have a car yet. Restart the app.")
             return
         }
         
@@ -231,13 +229,13 @@ struct RaceView: View {
                         HStack {
                             VStack{
                                 Divider()
-                                    .background(Color.black)
+                                    .background(Color("SecondaryAppColor"))
                             }
                             Text("or a friend")
                                 .padding(.horizontal, 8)
                             VStack{
                                 Divider()
-                                    .background(Color.black)
+                                    .background(Color("SecondaryAppColor"))
                             }
                         }
                         .padding(.vertical, 12)
@@ -275,11 +273,11 @@ struct RaceView: View {
                                         .disabled(isLoading)
                                     } else {
                                         Text("Already raced today")
-                                            .foregroundStyle(Color.black.opacity(0.5))
+                                            .foregroundStyle(Color("SecondaryAppColor").opacity(0.5))
                                     }
                                 }
                                 .padding()
-                                .background(alreadyRaced || notValid ? Color.black.opacity(0.1) : Color.white)
+                                .background(alreadyRaced || notValid ? Color("SecondaryAppColor").opacity(0.1) : Color("PrimaryAppColor"))
                                 .cornerRadius(12)
                             }
                         }
@@ -362,6 +360,7 @@ struct RaceView: View {
                                 VStack(alignment: .leading){
                                     HStack(alignment: .top) {
                                         Text(counDownNumber == 0 ? (hasWon ? "1st" : "2e") : "?")
+                                            .foregroundStyle(Color.black)
                                             .frame(width: 32, height: 32)
                                             .padding(8)
                                             .background(counDownNumber == 0 ? (hasWon ? Color.yellow : Color.gray.opacity(0.7)) : Color.gray)
@@ -384,11 +383,12 @@ struct RaceView: View {
 
                                 }
                                 .padding()
-                                .background(Color.white)
+                                .background(Color("PrimaryAppColor"))
                                 .cornerRadius(12)
                                 VStack(alignment: .leading){
                                     HStack(alignment: .top) {
                                         Text(counDownNumber == 0 ? (hasWon ? "2e" : "1st") : "?")
+                                            .foregroundStyle(Color.black)
                                             .frame(width: 32, height: 32)
                                             .padding(8)
                                             .background(counDownNumber == 0 ? (hasWon ? Color.gray.opacity(0.7) : Color.yellow) : Color.gray)
@@ -411,7 +411,7 @@ struct RaceView: View {
 
                                 }
                                 .padding()
-                                .background(Color.white)
+                                .background(Color("PrimaryAppColor"))
                                 .cornerRadius(12)
                             }
                             .padding()
@@ -491,6 +491,7 @@ struct RaceView: View {
                                         .frame(width: 120, height: 200)
                                         .cornerRadius(10)
                                     Text("1")
+                                        .foregroundStyle(Color.black)
                                         .font(.system(size: 64, weight: .bold))
                                 }
                             }
@@ -516,6 +517,7 @@ struct RaceView: View {
                                         .frame(width: 120, height: 140)
                                         .cornerRadius(10)
                                     Text("2")
+                                        .foregroundStyle(Color.black)
                                         .font(.system(size: 64, weight: .bold))
                                 }
                             }
@@ -532,6 +534,7 @@ struct RaceView: View {
                             HStack {
                                 Spacer()
                                 Text(hasWon ? "Claim" : "Close")
+                                    .bold()
                                 Spacer()
                             }
                             .frame(height: 16)

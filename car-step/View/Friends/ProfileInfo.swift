@@ -94,7 +94,7 @@ struct ProfileInfo: View {
                     }
                     .frame(height: 64)
                     .padding()
-                    .background(Color.white)
+                    .background(Color("PrimaryAppColor"))
                     .cornerRadius(12)
                     
                     HStack {
@@ -114,7 +114,7 @@ struct ProfileInfo: View {
                     }
                     .padding()
                     .frame(maxWidth: .infinity)
-                    .background(Color.white)
+                    .background(Color("PrimaryAppColor"))
                     .cornerRadius(12)
                     
                     if (car != nil) {
@@ -134,7 +134,7 @@ struct ProfileInfo: View {
                         }
                         .padding()
                         .frame(maxWidth: .infinity)
-                        .background(Color.white)
+                        .background(Color("PrimaryAppColor"))
                         .cornerRadius(12)
                     }
                     
@@ -148,7 +148,7 @@ struct ProfileInfo: View {
             }
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity)
-        .background(Color.black.opacity(0.05))
+        .background(Color("BackgroundAppColor"))
         .onAppear {
             Task{
                 await prepData()
@@ -164,6 +164,7 @@ struct ProfileInfo: View {
     func partView(_ part: Part?) -> some View {
         ZStack {
             Text(part?.name ?? "")
+                .foregroundStyle(Color.black)
         }
         .frame(width: 80, height: 80)
         .background(part != nil

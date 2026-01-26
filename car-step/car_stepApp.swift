@@ -25,55 +25,68 @@ struct car_stepApp: App {
     @State var isAuthenticated = false
     @State var needsUsername = false
     
+    @State var isLoading = true
+    
     var body: some Scene {
         WindowGroup {
             Group {
-                if isAuthenticated {
-                    if needsUsername {
-                        EditProfile(
-                            onSave: {
-                                needsUsername = false
-                            },
-                            pageTitle: "Create Profile",
-                            buttonLabel: "Create",
-                            username: ""
-                        )
-                    } else {
-                        if isOnboarding {
-                            Onboarding()
-                                .environmentObject(manager)
+                if !isLoading {
+                    if isAuthenticated {
+                        if needsUsername {
+                            EditProfile(
+                                onSave: {
+                                    needsUsername = false
+                                },
+                                pageTitle: "Create Profile",
+                                buttonLabel: "Create",
+                                username: ""
+                            )
                         } else {
-                            ContentView()
-                                .environmentObject(manager)
-                                .environment(appData)
-                                .environment(\.modelContext, container.mainContext)
-                                .onAppear {
-                                    WatchConnectivitySync.shared.setup(
-                                        context: container.mainContext,
-                                        appData: appData
-                                    )
-                                }
+                            if isOnboarding {
+                                Onboarding()
+                                    .environmentObject(manager)
+                            } else {
+                                ContentView()
+                                    .environmentObject(manager)
+                                    .environment(appData)
+                                    .environment(\.modelContext, container.mainContext)
+                                    .onAppear {
+                                        WatchConnectivitySync.shared.setup(
+                                            context: container.mainContext,
+                                            appData: appData
+                                        )
+                                    }
+                            }
                         }
+                    } else {
+                        AuthView()
                     }
                 } else {
-                    AuthView()
+                    ProgressView()
                 }
             }
             .task {
+                isLoading = true
+                
                 if !hasLaunchedBefore {
                     hasLaunchedBefore = true
                     try? await supabase.auth.signOut()
                     await appData.resetApp(context: container.mainContext)
                 }
+                
+                if let session = supabase.auth.currentSession {
+                    isAuthenticated = true
+                    appData.currentUserId = session.user.id
+                    appData.didJustLogin = false
+                    await checkUsername(session: session)
+                } else {
+                    isAuthenticated = false
+                }
+                
+                isLoading = false
+                
                 for await state in supabase.auth.authStateChanges {
                     switch state.event {
-                    case .initialSession:
-                        if let session = state.session {
-                            isAuthenticated = true
-                            appData.currentUserId = session.user.id
-                            appData.didJustLogin = false
-                            await checkUsername(session: session)
-                        }
                     case .signedIn:
                         isAuthenticated = true
                         appData.currentUserId = state.session!.user.id

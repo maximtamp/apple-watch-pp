@@ -34,13 +34,14 @@ struct SevenDaysGraphic: View {
                 }
                 .padding()
                 .frame(maxWidth: .infinity)
+                .foregroundStyle(Color("PrimaryAppColor"))
                 .background(Color.gray)
                 .padding(.horizontal, 4)
             }
         }
         .padding()
         .frame(maxWidth: .infinity)
-        .background(Color.white)
+        .background(Color("PrimaryAppColor"))
         .cornerRadius(12)
         .onAppear {
             lastSevenDaysTotalSteps = lastSevenDays.reduce(0) { $0 + $1.totalSteps }

@@ -30,9 +30,9 @@ struct AuthView: View {
                         .textContentType(.emailAddress)
                         .textInputAutocapitalization(.never)
                         .autocorrectionDisabled()
-                        .background(Color.white)
+                        .background(Color("PrimaryAppColor"))
                         .padding(12)
-                        .background(Color.white)
+                        .background(Color("PrimaryAppColor"))
                         .cornerRadius(12)
                 }
                 .padding(.horizontal, 20)
@@ -74,7 +74,7 @@ struct AuthView: View {
             }
         }
         .padding(.vertical, 30)
-        .background(Color.black.opacity(0.05))
+        .background(Color("BackgroundAppColor"))
         .onOpenURL(perform: { url in
             Task {
                 do {

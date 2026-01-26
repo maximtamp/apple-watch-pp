@@ -23,12 +23,10 @@ struct ContentView: View {
     var body: some View {
         VStack{
             if isSetup {
-                NavigationStack{
-                    TabView {
-                        Home()
-                        UseFuelPage()
-                        Garage()
-                    }
+                TabView {
+                    Home()
+                    UseFuelPage()
+                    Garage()
                 }
                 .onAppear {
                     appData.setup(
