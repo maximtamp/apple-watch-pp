@@ -14,10 +14,15 @@ struct Home: View {
     @Environment(AppData.self) private var appData
     
     @State private var showUseFuelPopover: Bool = false
+    @State private var showRacePopover: Bool = false
     @Query var parts: [Part]
     
     func closeUseFuelPopover() {
         showUseFuelPopover = false
+    }
+    
+    func closeRacelPopover() {
+        showRacePopover = false
     }
             
     var body: some View {
@@ -33,6 +38,10 @@ struct Home: View {
                             
                             try? context.save()
                             
+                            Task{
+                                await SupabaseService.shared.updateDay(today)
+                                await SupabaseService.shared.updateFuel(fuel)
+                            }
                             WatchConnectivitySync.shared.sendToday(today)
                             WatchConnectivitySync.shared.sendFuel(fuel)
                         }
@@ -49,6 +58,16 @@ struct Home: View {
                                 part: part,
                                 today: today,
                                 onClose: closeUseFuelPopover
+                            )
+                        }
+                        
+                        Button("Race") {
+                            showRacePopover = true
+                        }
+                        .buttonStyle(.borderedProminent)
+                        .popover(isPresented: $showRacePopover) {
+                            RaceView(
+                                onClose: closeRacelPopover
                             )
                         }
                     }
@@ -85,6 +104,6 @@ struct Home: View {
 #Preview {
     Home()
         .environmentObject(HealthKitManager())
-        .environment(AppData())
+        .environment(AppData(currentUserId: UUID()))
         .modelContainer(for: Day.self, inMemory: true)
 }

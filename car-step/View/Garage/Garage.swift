@@ -9,7 +9,6 @@ import SwiftUI
 import SwiftData
 
 struct Garage: View {
-    @Environment(\.modelContext) private var context
     @Environment(AppData.self) private var appData
     
     @Query private var parts: [Part]
@@ -71,7 +70,7 @@ struct Garage: View {
                     LazyVGrid(columns: [GridItem(.flexible()), GridItem(.flexible()), GridItem(.flexible())]){
                         ForEach(
                             parts
-                                .filter {$0.type.lowercased() == selectedTab.lowercased() && $0.partMade}
+                                .filter {$0.type.displayName == selectedTab && $0.partMade}
                                 .sorted{partA, partB in
                                     if partA.id == car.bodyId || partA.id == car.engineId || partA.id == car.wheelId {
                                         return true
@@ -80,14 +79,14 @@ struct Garage: View {
                                         return false
                                     }
                                     
-                                    let rarityA = rarityOrder.firstIndex(of: partA.rarity) ?? 0
-                                    let rarityB = rarityOrder.firstIndex(of: partB.rarity) ?? 0
+                                    let rarityA = rarityOrder.firstIndex(of: partA.rarity.displayName) ?? 0
+                                    let rarityB = rarityOrder.firstIndex(of: partB.rarity.displayName) ?? 0
                                     return rarityA > rarityB
                                 }
                         ) { part in
                             
                             Button {
-                                appData.updateCarPartId(car: car, context: context, partType: part.type, newID: part.id)
+                                appData.updateCarPartId(car: car, partType: part.type, newID: part.id)
                             } label: {
                                 VStack {
                                     Text(part.name)

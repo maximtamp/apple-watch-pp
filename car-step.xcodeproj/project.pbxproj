@@ -7,6 +7,17 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		1B8149352F22CC9200D3840E /* Auth in Frameworks */ = {isa = PBXBuildFile; productRef = 1B8149342F22CC9200D3840E /* Auth */; };
+		1B8149372F22CC9200D3840E /* Functions in Frameworks */ = {isa = PBXBuildFile; productRef = 1B8149362F22CC9200D3840E /* Functions */; };
+		1B8149392F22CC9200D3840E /* PostgREST in Frameworks */ = {isa = PBXBuildFile; productRef = 1B8149382F22CC9200D3840E /* PostgREST */; };
+		1B81493B2F22CC9200D3840E /* Realtime in Frameworks */ = {isa = PBXBuildFile; productRef = 1B81493A2F22CC9200D3840E /* Realtime */; };
+		1B81493D2F22CC9200D3840E /* Storage in Frameworks */ = {isa = PBXBuildFile; productRef = 1B81493C2F22CC9200D3840E /* Storage */; };
+		1B81493F2F22CC9200D3840E /* Supabase in Frameworks */ = {isa = PBXBuildFile; productRef = 1B81493E2F22CC9200D3840E /* Supabase */; };
+		1B94C1E32F22D1440098E0DC /* Auth in Frameworks */ = {isa = PBXBuildFile; productRef = 1B94C1E22F22D1440098E0DC /* Auth */; };
+		1B94C1E52F22D1440098E0DC /* Functions in Frameworks */ = {isa = PBXBuildFile; productRef = 1B94C1E42F22D1440098E0DC /* Functions */; };
+		1B94C1E72F22D1440098E0DC /* PostgREST in Frameworks */ = {isa = PBXBuildFile; productRef = 1B94C1E62F22D1440098E0DC /* PostgREST */; };
+		1B94C1EB2F22D1440098E0DC /* Storage in Frameworks */ = {isa = PBXBuildFile; productRef = 1B94C1EA2F22D1440098E0DC /* Storage */; };
+		1B94C1ED2F22D1440098E0DC /* Supabase in Frameworks */ = {isa = PBXBuildFile; productRef = 1B94C1EC2F22D1440098E0DC /* Supabase */; };
 		1BF63D612F181C86008F8F52 /* watch-car-step Watch App.app in Embed Watch Content */ = {isa = PBXBuildFile; fileRef = 1BF63D412F181C84008F8F52 /* watch-car-step Watch App.app */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
 /* End PBXBuildFile section */
 
@@ -75,17 +86,29 @@
 		1B0164B22F1A8FBC00BD09BD /* Exceptions for "car-step" folder in "watch-car-step Watch App" target */ = {
 			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
 			membershipExceptions = (
-				Data/AppData.swift,
 				Data/Car.swift,
 				Data/Day.swift,
+				Data/Friend.swift,
 				Data/Fuel.swift,
-				Data/HealthKitManager.swift,
 				Data/Part.swift,
 				Data/PartShapes.swift,
+				Data/Profile.swift,
 				Data/Quest.swift,
-				Data/WatchConnectivitySync.swift,
+				Data/Race.swift,
+				Service/AppData.swift,
+				Service/HealthKitManager.swift,
+				Service/Supabase.swift,
+				Service/SupabaseService.swift,
+				Service/WatchConnectivitySync.swift,
 			);
 			target = 1BF63D402F181C84008F8F52 /* watch-car-step Watch App */;
+		};
+		1B0164DD2F20CD9100BD09BD /* Exceptions for "car-step" folder in "car-step" target */ = {
+			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
+			membershipExceptions = (
+				Info.plist,
+			);
+			target = 1B6F40742F0E8A6F00AE9D82 /* car-step */;
 		};
 /* End PBXFileSystemSynchronizedBuildFileExceptionSet section */
 
@@ -93,6 +116,7 @@
 		1B6F40772F0E8A6F00AE9D82 /* car-step */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
 			exceptions = (
+				1B0164DD2F20CD9100BD09BD /* Exceptions for "car-step" folder in "car-step" target */,
 				1B0164B22F1A8FBC00BD09BD /* Exceptions for "car-step" folder in "watch-car-step Watch App" target */,
 			);
 			path = "car-step";
@@ -130,6 +154,12 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				1B8149392F22CC9200D3840E /* PostgREST in Frameworks */,
+				1B8149372F22CC9200D3840E /* Functions in Frameworks */,
+				1B81493F2F22CC9200D3840E /* Supabase in Frameworks */,
+				1B8149352F22CC9200D3840E /* Auth in Frameworks */,
+				1B81493D2F22CC9200D3840E /* Storage in Frameworks */,
+				1B81493B2F22CC9200D3840E /* Realtime in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -151,6 +181,11 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				1B94C1E72F22D1440098E0DC /* PostgREST in Frameworks */,
+				1B94C1E52F22D1440098E0DC /* Functions in Frameworks */,
+				1B94C1ED2F22D1440098E0DC /* Supabase in Frameworks */,
+				1B94C1E32F22D1440098E0DC /* Auth in Frameworks */,
+				1B94C1EB2F22D1440098E0DC /* Storage in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -180,6 +215,7 @@
 				1BF63D422F181C84008F8F52 /* watch-car-step Watch App */,
 				1BF63D502F181C86008F8F52 /* watch-car-step Watch AppTests */,
 				1BF63D5A2F181C86008F8F52 /* watch-car-step Watch AppUITests */,
+				1B94C1E12F22D1440098E0DC /* Frameworks */,
 				1B6F40762F0E8A6F00AE9D82 /* Products */,
 			);
 			sourceTree = "<group>";
@@ -195,6 +231,13 @@
 				1BF63D572F181C86008F8F52 /* watch-car-step Watch AppUITests.xctest */,
 			);
 			name = Products;
+			sourceTree = "<group>";
+		};
+		1B94C1E12F22D1440098E0DC /* Frameworks */ = {
+			isa = PBXGroup;
+			children = (
+			);
+			name = Frameworks;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -219,6 +262,12 @@
 			);
 			name = "car-step";
 			packageProductDependencies = (
+				1B8149342F22CC9200D3840E /* Auth */,
+				1B8149362F22CC9200D3840E /* Functions */,
+				1B8149382F22CC9200D3840E /* PostgREST */,
+				1B81493A2F22CC9200D3840E /* Realtime */,
+				1B81493C2F22CC9200D3840E /* Storage */,
+				1B81493E2F22CC9200D3840E /* Supabase */,
 			);
 			productName = "car-step";
 			productReference = 1B6F40752F0E8A6F00AE9D82 /* car-step.app */;
@@ -287,6 +336,11 @@
 			);
 			name = "watch-car-step Watch App";
 			packageProductDependencies = (
+				1B94C1E22F22D1440098E0DC /* Auth */,
+				1B94C1E42F22D1440098E0DC /* Functions */,
+				1B94C1E62F22D1440098E0DC /* PostgREST */,
+				1B94C1EA2F22D1440098E0DC /* Storage */,
+				1B94C1EC2F22D1440098E0DC /* Supabase */,
 			);
 			productName = "watch-car-step Watch App";
 			productReference = 1BF63D412F181C84008F8F52 /* watch-car-step Watch App.app */;
@@ -381,6 +435,9 @@
 			);
 			mainGroup = 1B6F406C2F0E8A6F00AE9D82;
 			minimizedProjectReferenceProxies = 1;
+			packageReferences = (
+				1B8149332F22CC9200D3840E /* XCRemoteSwiftPackageReference "supabase-swift" */,
+			);
 			preferredProjectObjectVersion = 77;
 			productRefGroup = 1B6F40762F0E8A6F00AE9D82 /* Products */;
 			projectDirPath = "";
@@ -645,6 +702,7 @@
 				DEVELOPMENT_TEAM = NL87JTT4RX;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = "car-step/Info.plist";
 				INFOPLIST_KEY_NSHealthShareUsageDescription = "Pleas allow so we can use your steps";
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
@@ -680,6 +738,7 @@
 				DEVELOPMENT_TEAM = NL87JTT4RX;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = "car-step/Info.plist";
 				INFOPLIST_KEY_NSHealthShareUsageDescription = "Pleas allow so we can use your steps";
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
@@ -1011,6 +1070,75 @@
 			defaultConfigurationName = Release;
 		};
 /* End XCConfigurationList section */
+
+/* Begin XCRemoteSwiftPackageReference section */
+		1B8149332F22CC9200D3840E /* XCRemoteSwiftPackageReference "supabase-swift" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/supabase/supabase-swift";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 2.5.1;
+			};
+		};
+/* End XCRemoteSwiftPackageReference section */
+
+/* Begin XCSwiftPackageProductDependency section */
+		1B8149342F22CC9200D3840E /* Auth */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 1B8149332F22CC9200D3840E /* XCRemoteSwiftPackageReference "supabase-swift" */;
+			productName = Auth;
+		};
+		1B8149362F22CC9200D3840E /* Functions */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 1B8149332F22CC9200D3840E /* XCRemoteSwiftPackageReference "supabase-swift" */;
+			productName = Functions;
+		};
+		1B8149382F22CC9200D3840E /* PostgREST */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 1B8149332F22CC9200D3840E /* XCRemoteSwiftPackageReference "supabase-swift" */;
+			productName = PostgREST;
+		};
+		1B81493A2F22CC9200D3840E /* Realtime */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 1B8149332F22CC9200D3840E /* XCRemoteSwiftPackageReference "supabase-swift" */;
+			productName = Realtime;
+		};
+		1B81493C2F22CC9200D3840E /* Storage */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 1B8149332F22CC9200D3840E /* XCRemoteSwiftPackageReference "supabase-swift" */;
+			productName = Storage;
+		};
+		1B81493E2F22CC9200D3840E /* Supabase */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 1B8149332F22CC9200D3840E /* XCRemoteSwiftPackageReference "supabase-swift" */;
+			productName = Supabase;
+		};
+		1B94C1E22F22D1440098E0DC /* Auth */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 1B8149332F22CC9200D3840E /* XCRemoteSwiftPackageReference "supabase-swift" */;
+			productName = Auth;
+		};
+		1B94C1E42F22D1440098E0DC /* Functions */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 1B8149332F22CC9200D3840E /* XCRemoteSwiftPackageReference "supabase-swift" */;
+			productName = Functions;
+		};
+		1B94C1E62F22D1440098E0DC /* PostgREST */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 1B8149332F22CC9200D3840E /* XCRemoteSwiftPackageReference "supabase-swift" */;
+			productName = PostgREST;
+		};
+		1B94C1EA2F22D1440098E0DC /* Storage */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 1B8149332F22CC9200D3840E /* XCRemoteSwiftPackageReference "supabase-swift" */;
+			productName = Storage;
+		};
+		1B94C1EC2F22D1440098E0DC /* Supabase */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 1B8149332F22CC9200D3840E /* XCRemoteSwiftPackageReference "supabase-swift" */;
+			productName = Supabase;
+		};
+/* End XCSwiftPackageProductDependency section */
 	};
 	rootObject = 1B6F406D2F0E8A6F00AE9D82 /* Project object */;
 }
