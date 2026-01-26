@@ -75,7 +75,7 @@ final class SupabaseService {
             
             let decoder = JSONDecoder()
             let formatter = DateFormatter()
-            formatter.dateFormat = "yyyy-MM-dd'T'HH:mm:ss" // let op: geen Z
+            formatter.dateFormat = "yyyy-MM-dd'T'HH:mm:ss"
             decoder.dateDecodingStrategy = .formatted(formatter)
 
             let dtos = try decoder.decode([PartDTO].self, from: response.data)
@@ -150,6 +150,22 @@ final class SupabaseService {
         }
     }
     
+    func fetchProfile(userId: UUID) async -> Profile? {
+        do {
+            let response = try await supabase
+                .from("profiles")
+                .select()
+                .eq("id", value: userId)
+                .single()
+                .execute()
+
+            let dto = try JSONDecoder().decode(ProfileDTO.self, from: response.data)
+            return Profile(dto: dto)
+        } catch {
+            return nil
+        }
+    }
+    
     func fetchOthersProfiles(userId: UUID) async -> [Profile] {
         do {
             let response = try await supabase
@@ -176,6 +192,86 @@ final class SupabaseService {
             let dtos = try JSONDecoder().decode([FriendDTO].self, from: response.data)
             return dtos.map{Friend(dto: $0)}
         } catch {
+            return []
+        }
+    }
+    
+    func fetchCarParts(for userId: UUID) async -> (body: Part?, engine: Part?, wheel: Part?) {
+        let cars = await fetchCars(userId: userId)
+        guard let car = cars.first else {
+            return (nil, nil, nil) // Geen auto gevonden
+        }
+        
+        async let body = fetchPartById(car.bodyId)
+        async let engine = fetchPartById(car.engineId)
+        async let wheel = fetchPartById(car.wheelId)
+        
+        return await (body, engine, wheel)
+    }
+
+    func fetchPartById(_ partId: UUID) async -> Part? {
+        do {
+            let response = try await supabase
+                .from("parts")
+                .select()
+                .eq("id", value: partId)
+                .single()
+                .execute()
+            
+            let decoder = JSONDecoder()
+            let formatter = DateFormatter()
+            formatter.dateFormat = "yyyy-MM-dd'T'HH:mm:ss"
+            decoder.dateDecodingStrategy = .formatted(formatter)
+
+            let dto = try decoder.decode(PartDTO.self, from: response.data)
+            return Part(dto: dto)
+        } catch {
+            print("Error fetching part by ID:", error)
+            return nil
+        }
+    }
+    
+    func fetchRaces(userId: UUID) async -> [Race] {
+        do {
+            let response = try await supabase
+                .from("races")
+                .select()
+                .eq("user_id", value: userId)
+                .execute()
+            
+            let decoder = JSONDecoder()
+            let formatter = DateFormatter()
+            formatter.dateFormat = "yyyy-MM-dd"
+            decoder.dateDecodingStrategy = .formatted(formatter)
+
+            let dtos = try decoder.decode([RaceDTO].self, from: response.data)
+            return dtos.map{Race(dto: $0)}
+        } catch {
+            return []
+        }
+    }
+    
+    func fetchTodaysRaces(userId: UUID) async -> [Race] {
+        do {
+            let formatter = DateFormatter()
+            formatter.dateFormat = "yyyy-MM-dd"
+            let todayString = formatter.string(from: Date())
+
+            let response = try await supabase
+                .from("races")
+                .select()
+                .eq("user_id", value: userId)
+                .eq("date", value: todayString)
+                .execute()
+            
+            let decoder = JSONDecoder()
+            decoder.dateDecodingStrategy = .formatted(formatter)
+
+            let dtos = try decoder.decode([RaceDTO].self, from: response.data)
+            return dtos.map { Race(dto: $0) }
+
+        } catch {
+            print("Error fetching races today:", error)
             return []
         }
     }
@@ -216,6 +312,7 @@ final class SupabaseService {
                 part_made: part.partMade,
                 progress_value: part.progressValue,
                 max_value: part.maxValue,
+                speed_points: part.speedPoints,
                 creation_date: ISO8601DateFormatter().string(from: part.creationDate)
             )
             _ = try await supabase
@@ -297,6 +394,28 @@ final class SupabaseService {
             _ = try await supabase
                 .from("friends")
                 .insert(friendToSend)
+                .execute()
+        } catch {
+            print("Error inserting friend:", error)
+        }
+    }
+    
+    func insertRace(_ race: Race) async {
+        do {
+            let formatter = DateFormatter()
+            formatter.dateFormat = "yyyy-MM-dd"
+            formatter.timeZone = .current
+            
+            let raceToSend = RaceInsert(
+                id: race.id.uuidString,
+                user_id: race.userId.uuidString,
+                opponent_id: race.opponentId.uuidString,
+                won: race.won,
+                date: formatter.string(from: race.date),
+            )
+            _ = try await supabase
+                .from("races")
+                .insert(raceToSend)
                 .execute()
         } catch {
             print("Error inserting friend:", error)

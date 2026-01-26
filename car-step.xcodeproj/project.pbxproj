@@ -96,6 +96,7 @@
 				Data/Part.swift,
 				Data/PartShapes.swift,
 				Data/Quest.swift,
+				Data/Race.swift,
 				Data/Supabase.swift,
 				Data/SupabaseService.swift,
 				Data/WatchConnectivitySync.swift,

@@ -47,8 +47,8 @@ struct UseFuel: View {
                     withAnimation(.linear(duration: max(3.0, Double(amountOfFuelUse) / 500.0))) {
                         partProgress = newPartProgress
                     } completion: {
-                        appData.updateFuel(fuel: fuel, context: context, newValue: fuel.value - amountOfFuelUse)
-                        appData.updateTodayUsedFuel(today: today, context: context, newValue: today.usedFuel + amountOfFuelUse)
+                        appData.updateFuel(fuel: fuel, newValue: fuel.value - amountOfFuelUse)
+                        appData.updateTodayUsedFuel(today: today, newValue: today.usedFuel + amountOfFuelUse)
                         if partProgress == 1.0 {
                             createdPartRarity = part.rarity
                             
@@ -57,7 +57,7 @@ struct UseFuel: View {
                             WatchConnectivitySync.shared.sendParts(parts)
                         } else {
                             useFuelState = "ShapeNotDone"
-                            appData.updatePartProgrss(part: part, context: context, newValue: part.progressValue + amountOfFuelUse)
+                            appData.updatePartProgrss(part: part, newValue: part.progressValue + amountOfFuelUse)
                         }
                     }
                 }
@@ -114,7 +114,7 @@ struct UseFuel: View {
 }
 
 #Preview {
-    let mockPart = Part(name: "Sparky", type: .wheel, rarity: .rare, partMade: false, progressValue: 0, maxValue: 10000, creationDate: .now)
+    let mockPart = Part(name: "Sparky", type: .wheel, rarity: .rare, partMade: false, progressValue: 0, maxValue: 10000, speedPoints: 10, creationDate: .now)
     let mockFuel = Fuel(userId: UUID(), value: 8000)
     let mockToday = Day(id: UUID(), userId: UUID(), date: .now, totalSteps: 0, claimedSteps: 0, usedFuel: 0)
     UseFuel(fuel: mockFuel, part: mockPart, today: mockToday)

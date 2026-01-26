@@ -10,7 +10,6 @@ import SwiftData
 
 struct Garage: View {
     
-    @Environment(\.modelContext) private var context
     @Environment(AppData.self) private var appData
     
     @Query private var parts: [Part]
@@ -72,7 +71,7 @@ struct Garage: View {
                             ) { part in
                                 
                                 Button {
-                                    appData.updateCarPartId(car: car, context: context, partType: part.type, newID: part.id)
+                                    appData.updateCarPartId(car: car, partType: part.type, newID: part.id)
                                 } label: {
                                     VStack {
                                         Text(part.name)

@@ -115,6 +115,9 @@ class AppData {
     private func setupCar(context: ModelContext, cars: [Car], parts: [Part]) {
         if let existingCar = cars.first {
             car = existingCar
+            Task{
+                await SupabaseService.shared.insertCar(existingCar)
+            }
         } else {
             let newCar = Car(
                 userId: currentUserId,
@@ -146,6 +149,7 @@ class AppData {
                         partMade: false,
                         progressValue: 0,
                         maxValue: randomPart.maxValue,
+                        speedPoints: randomPart.speedPoints,
                         creationDate: .now
                     )
                     context.insert(newPart)
@@ -157,9 +161,9 @@ class AppData {
                 }
             }
         } else {
-            let defaultBody = Part(userId: currentUserId, name: "Shell Rover", type: .body, rarity: .common, partMade: true, progressValue: 3000, maxValue: 3000, creationDate: .now)
-            let defaultEngine = Part(userId: currentUserId, name: "Engine V1", type: .engine, rarity: .common, partMade: true, progressValue: 2000, maxValue: 2000, creationDate: .now)
-            let defaultWheel = Part(userId: currentUserId, name: "Ring Hoops", type: .wheel, rarity: .common, partMade: true, progressValue: 1000, maxValue: 1000, creationDate: .now)
+            let defaultBody = Part(userId: currentUserId, name: "Shell Rover", type: .body, rarity: .common, partMade: true, progressValue: 3000, maxValue: 3000, speedPoints: 5, creationDate: .now)
+            let defaultEngine = Part(userId: currentUserId, name: "Engine V1", type: .engine, rarity: .common, partMade: true, progressValue: 2000, maxValue: 2000, speedPoints: 10, creationDate: .now)
+            let defaultWheel = Part(userId: currentUserId, name: "Ring Hoops", type: .wheel, rarity: .common, partMade: true, progressValue: 1000, maxValue: 1000, speedPoints: 7, creationDate: .now)
             
             context.insert(defaultBody)
             context.insert(defaultEngine)
@@ -182,6 +186,7 @@ class AppData {
                     partMade: false,
                     progressValue: 0,
                     maxValue: randomPart.maxValue,
+                    speedPoints: randomPart.speedPoints,
                     creationDate: .now
                 )
                 context.insert(newPart)
@@ -300,6 +305,7 @@ class AppData {
                 partMade: false,
                 progressValue: 0,
                 maxValue: randomPart.maxValue,
+                speedPoints: randomPart.speedPoints,
                 creationDate: .now
             )
             context.insert(newPart)
@@ -311,7 +317,7 @@ class AppData {
         }
     }
     
-    func updatePartProgrss(part: Part, context: ModelContext, newValue: Int) {
+    func updatePartProgrss(part: Part, newValue: Int) {
         part.progressValue = newValue
         WatchConnectivitySync.shared.sendPart(part)
         Task {
@@ -319,7 +325,7 @@ class AppData {
         }
     }
     
-    func updateFuel(fuel: Fuel, context: ModelContext, newValue: Int) {
+    func updateFuel(fuel: Fuel, newValue: Int) {
         fuel.value = newValue
         WatchConnectivitySync.shared.sendFuel(fuel)
         Task {
@@ -327,7 +333,7 @@ class AppData {
         }
     }
     
-    func updateTodayUsedFuel(today: Day, context: ModelContext, newValue: Int) {
+    func updateTodayUsedFuel(today: Day, newValue: Int) {
         today.usedFuel = newValue
         WatchConnectivitySync.shared.sendToday(today)
         Task {
@@ -335,7 +341,7 @@ class AppData {
         }
     }
     
-    func updateCarPartId(car: Car, context: ModelContext, partType: PartType, newID: UUID = UUID()) {
+    func updateCarPartId(car: Car, partType: PartType, newID: UUID = UUID()) {
         switch partType {
         case .body:
             car.bodyId = newID

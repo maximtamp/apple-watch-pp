@@ -45,9 +45,10 @@ class Part {
     var partMade : Bool
     var progressValue: Int
     var maxValue: Int
+    var speedPoints: Int
     var creationDate: Date
 
-    init(id: UUID = UUID(), userId: UUID = UUID(), name: String, type: PartType, rarity: PartRarity, partMade: Bool, progressValue: Int, maxValue: Int, creationDate: Date) {
+    init(id: UUID = UUID(), userId: UUID = UUID(), name: String, type: PartType, rarity: PartRarity, partMade: Bool, progressValue: Int, maxValue: Int, speedPoints: Int, creationDate: Date) {
         self.id = id
         self.userId = userId
         self.name = name
@@ -56,6 +57,7 @@ class Part {
         self.partMade = partMade
         self.progressValue = progressValue
         self.maxValue = maxValue
+        self.speedPoints = speedPoints
         self.creationDate = creationDate
     }
     
@@ -69,6 +71,7 @@ class Part {
             partMade: dto.partMade,
             progressValue: dto.progressValue,
             maxValue: dto.maxValue,
+            speedPoints: dto.speedPoints,
             creationDate: dto.creationDate
             
         )
@@ -80,25 +83,25 @@ class Part {
     
     static let possibleParts: [Part] = [
         // BODY
-        Part(name: "Shell Rover", type: .body, rarity: .common, partMade: false, progressValue: 0, maxValue: 3000, creationDate: .now),
-        Part(name: "Wing Chassis", type: .body, rarity: .uncommon, partMade: false, progressValue: 0, maxValue: 6000, creationDate: .now),
-        Part(name: "Crest Shell", type: .body, rarity: .rare, partMade: false, progressValue: 0, maxValue: 10000, creationDate: .now),
-        Part(name: "Phoenix Carapace", type: .body, rarity: .epic, partMade: false, progressValue: 0, maxValue: 15000, creationDate: .now),
-        Part(name: "Aura Frame", type: .body, rarity: .legendary, partMade: false, progressValue: 0, maxValue: 20000, creationDate: .now),
+        Part(name: "Shell Rover", type: .body, rarity: .common, partMade: false, progressValue: 0, maxValue: 3000, speedPoints: 5, creationDate: .now),
+        Part(name: "Wing Chassis", type: .body, rarity: .uncommon, partMade: false, progressValue: 0, maxValue: 6000, speedPoints: 7, creationDate: .now),
+        Part(name: "Crest Shell", type: .body, rarity: .rare, partMade: false, progressValue: 0, maxValue: 10000, speedPoints: 9, creationDate: .now),
+        Part(name: "Phoenix Carapace", type: .body, rarity: .epic, partMade: false, progressValue: 0, maxValue: 15000, speedPoints: 11, creationDate: .now),
+        Part(name: "Aura Frame", type: .body, rarity: .legendary, partMade: false, progressValue: 0, maxValue: 20000, speedPoints: 15, creationDate: .now),
         
         // ENGINE
-        Part(name: "Engine V1", type: .engine, rarity: .common, partMade: false, progressValue: 0, maxValue: 2000, creationDate: .now),
-        Part(name: "Bolt Core", type: .engine, rarity: .uncommon, partMade: false, progressValue: 0, maxValue: 4500, creationDate: .now),
-        Part(name: "Gear V8", type: .engine, rarity: .rare, partMade: false, progressValue: 0, maxValue: 8000, creationDate: .now),
-        Part(name: "Flare Pulse Unit", type: .engine, rarity: .epic, partMade: false, progressValue: 0, maxValue: 12000, creationDate: .now),
-        Part(name: "Reactor", type: .engine, rarity: .legendary, partMade: false, progressValue: 0, maxValue: 16000, creationDate: .now),
+        Part(name: "Engine V1", type: .engine, rarity: .common, partMade: false, progressValue: 0, maxValue: 2000, speedPoints: 10, creationDate: .now),
+        Part(name: "Bolt Core", type: .engine, rarity: .uncommon, partMade: false, progressValue: 0, maxValue: 4500, speedPoints: 13, creationDate: .now),
+        Part(name: "Gear V8", type: .engine, rarity: .rare, partMade: false, progressValue: 0, maxValue: 8000, speedPoints: 17, creationDate: .now),
+        Part(name: "Flare Pulse Unit", type: .engine, rarity: .epic, partMade: false, progressValue: 0, maxValue: 12000, speedPoints: 22, creationDate: .now),
+        Part(name: "Reactor", type: .engine, rarity: .legendary, partMade: false, progressValue: 0, maxValue: 16000, speedPoints: 30, creationDate: .now),
             
         // WHEEL
-        Part(name: "Ring Hoops", type: .wheel, rarity: .common, partMade: false, progressValue: 0, maxValue: 1000, creationDate: .now),
-        Part(name: "Spoke Treads", type: .wheel, rarity: .uncommon, partMade: false, progressValue: 0, maxValue: 2500, creationDate: .now),
-        Part(name: "Bolt Spinners", type: .wheel, rarity: .rare, partMade: false, progressValue: 0, maxValue: 5000, creationDate: .now),
-        Part(name: "Vortex Rollers", type: .wheel, rarity: .epic, partMade: false, progressValue: 0, maxValue: 8000, creationDate: .now),
-        Part(name: "Nebula Glidewheels", type: .wheel, rarity: .legendary, partMade: false, progressValue: 0, maxValue: 12000, creationDate: .now),
+        Part(name: "Ring Hoops", type: .wheel, rarity: .common, partMade: false, progressValue: 0, maxValue: 1000, speedPoints: 7, creationDate: .now),
+        Part(name: "Spoke Treads", type: .wheel, rarity: .uncommon, partMade: false, progressValue: 0, maxValue: 2500, speedPoints: 9, creationDate: .now),
+        Part(name: "Bolt Spinners", type: .wheel, rarity: .rare, partMade: false, progressValue: 0, maxValue: 5000, speedPoints: 12, creationDate: .now),
+        Part(name: "Vortex Rollers", type: .wheel, rarity: .epic, partMade: false, progressValue: 0, maxValue: 8000, speedPoints: 15, creationDate: .now),
+        Part(name: "Nebula Glidewheels", type: .wheel, rarity: .legendary, partMade: false, progressValue: 0, maxValue: 12000, speedPoints: 21, creationDate: .now),
     ]
     
     func getRarityColor(neededRarity: PartRarity) -> Color {
@@ -149,6 +152,7 @@ struct PartDTO: Codable {
     var partMade : Bool
     var progressValue: Int
     var maxValue: Int
+    var speedPoints: Int
     var creationDate: Date
     
     enum CodingKeys: String, CodingKey {
@@ -160,6 +164,7 @@ struct PartDTO: Codable {
         case partMade = "part_made"
         case progressValue = "progress_value"
         case maxValue = "max_value"
+        case speedPoints = "speed_points"
         case creationDate = "creation_date"
     }
 }
@@ -173,6 +178,7 @@ struct PartInsert: Encodable {
     var part_made: Bool
     var progress_value: Int
     var max_value: Int
+    var speed_points: Int
     var creation_date: String
 }
 

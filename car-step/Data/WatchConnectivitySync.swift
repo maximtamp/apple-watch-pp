@@ -47,6 +47,7 @@ final class WatchConnectivitySync: NSObject, WCSessionDelegate {
                 "partMade": part.partMade,
                 "progressValue": part.progressValue,
                 "maxValue": part.maxValue,
+                "speedPoints": part.speedPoints,
                 "creationDate": part.creationDate.timeIntervalSince1970
             ]
         }
@@ -116,6 +117,7 @@ final class WatchConnectivitySync: NSObject, WCSessionDelegate {
                 "partMade": part.partMade,
                 "progressValue": part.progressValue,
                 "maxValue": part.maxValue,
+                "speedPoints": part.speedPoints,
                 "creationDate": part.creationDate.timeIntervalSince1970
             ]
         }
@@ -135,6 +137,7 @@ final class WatchConnectivitySync: NSObject, WCSessionDelegate {
             "partMade": part.partMade,
             "progressValue": part.progressValue,
             "maxValue": part.maxValue,
+            "speedPoints": part.speedPoints,
             "creationDate": part.creationDate.timeIntervalSince1970
         ] as [String : Any]
         
@@ -300,6 +303,7 @@ final class WatchConnectivitySync: NSObject, WCSessionDelegate {
                 let partMade = dict["partMade"] as? Bool,
                 let progressValue = dict["progressValue"] as? Int,
                 let maxValue = dict["maxValue"] as? Int,
+                let speedPoints = dict["speedPoints"] as? Int,
                 let creationDate = dict["creationDate"] as? TimeInterval else { continue }
 
             let newPart = Part(
@@ -310,6 +314,7 @@ final class WatchConnectivitySync: NSObject, WCSessionDelegate {
                 partMade: partMade,
                 progressValue: progressValue,
                 maxValue: maxValue,
+                speedPoints: speedPoints,
                 creationDate: Date(timeIntervalSince1970: creationDate)
             )
 
