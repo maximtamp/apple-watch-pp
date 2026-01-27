@@ -28,25 +28,14 @@ struct Garage: View {
         VStack {
             if let car = appData.car {
                 VStack{
-                    if let bodyPart = parts.first(where: {$0.id == car.bodyId}) {
-                        Text("Body: \(bodyPart.name)")
+                    if let bodyPart = parts.first(where: {$0.id == car.bodyId}), let wheelPart = parts.first(where: {$0.id == car.wheelId}) {
+                        CarBuild(wheelName: wheelPart.name, bodyName: bodyPart.name)
                     } else {
-                        Text("Body: Not Selected")
-                    }
-                    
-                    if let enginePart = parts.first(where: {$0.id == car.engineId}) {
-                        Text("Engine: \(enginePart.name)")
-                    } else {
-                        Text("Engine: Not Selected")
-                    }
-                    
-                    if let wheelPart = parts.first(where: {$0.id == car.wheelId}) {
-                        Text("Wheels: \(wheelPart.name)")
-                    } else {
-                        Text("Wheels: Not Selected")
+                        Text("Make sure to select a body, engine and wheel")
                     }
                 }
                 .frame(maxWidth: .infinity, maxHeight: 300)
+                .padding(.horizontal, 40)
                 
                 HStack{
                     ForEach(tabs, id: \.id) { tab in
@@ -89,7 +78,10 @@ struct Garage: View {
                                 appData.updateCarPartId(car: car, partType: part.type, newID: part.id)
                             } label: {
                                 VStack {
-                                    Text(part.name)
+                                    Image("\(part.name.lowercased().replacingOccurrences(of: " ", with: "-"))-icon")
+                                        .resizable()
+                                        .scaledToFit()
+                                        .padding(8)
                                 }
                                 .frame(maxWidth: .infinity, maxHeight: .infinity)
                                 .background(part.getRarityColor(neededRarity: part.rarity))

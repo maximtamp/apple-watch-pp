@@ -27,24 +27,13 @@ struct Garage: View {
         if let car = appData.car {
             TabView {
                 VStack{
-                    if let bodyPart = parts.first(where: {$0.id == car.bodyId}) {
-                        Text("Body: \(bodyPart.name)")
+                    if let bodyPart = parts.first(where: {$0.id == car.bodyId}), let wheelPart = parts.first(where: {$0.id == car.wheelId}) {
+                        CarBuild(wheelName: wheelPart.name, bodyName: bodyPart.name)
                     } else {
-                        Text("Body: Not Selected")
-                    }
-                    
-                    if let enginePart = parts.first(where: {$0.id == car.engineId}) {
-                        Text("Engine: \(enginePart.name)")
-                    } else {
-                        Text("Engine: Not Selected")
-                    }
-                    
-                    if let wheelPart = parts.first(where: {$0.id == car.wheelId}) {
-                        Text("Wheels: \(wheelPart.name)")
-                    } else {
-                        Text("Wheels: Not Selected")
+                        Text("Make sure to select a body, engine and wheel")
                     }
                 }
+                .frame(maxWidth: .infinity, maxHeight: .infinity)
                 
                 ForEach(tabs, id: \.id) { tab in
                     ScrollView{

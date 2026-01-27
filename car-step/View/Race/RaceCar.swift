@@ -11,28 +11,37 @@ struct RaceCar: View {
     let color: Color
     let duration: Double
     let run: Double
+    let wheelName: String
+    let bodyName: String
 
     var body: some View {
-        Rectangle()
-            .fill(color)
+        ZStack {
+            Rectangle()
+                .fill(color)
+                .frame(width: 60, height: 60)
+                .cornerRadius(30)
+            VStack {
+                CarBuild(wheelName: wheelName, bodyName: bodyName)
+            }
             .frame(width: 60, height: 60)
             .cornerRadius(30)
-            .keyframeAnimator(
-                initialValue: AnimationValues(time: 0),
-                repeating: true
-            ) { content, value in
-                let easedTime = 1 - cos(value.time * .pi / 2)
-                content
-                    .modifier(TranslateAlongPath(
-                        path: roundedRectangleRacePath(),
-                        maxTime: easedTime
-                    ))
-                    .frame(width: 200, height: 400)
-            } keyframes: { _ in
-                KeyframeTrack(\.time) {
-                    CubicKeyframe(run, duration: duration)
-                }
+        }
+        .keyframeAnimator(
+            initialValue: AnimationValues(time: 0),
+            repeating: true
+        ) { content, value in
+            let easedTime = 1 - cos(value.time * .pi / 2)
+            content
+                .modifier(TranslateAlongPath(
+                    path: roundedRectangleRacePath(),
+                    maxTime: easedTime
+                ))
+                .frame(width: 200, height: 400)
+        } keyframes: { _ in
+            KeyframeTrack(\.time) {
+                CubicKeyframe(run, duration: duration)
             }
+        }
     }
     
     struct TranslateAlongPath: ViewModifier {

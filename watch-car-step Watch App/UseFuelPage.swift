@@ -18,7 +18,7 @@ struct UseFuelPage: View {
                 VStack(spacing: 12) {
                     VStack {
                         Spacer()
-                        part.getPartShape(neededPart: part.type, progress: part.progressPrecent, size: 100)
+                        part.getPartShape(neededPart: part.name, progress: part.progressPrecent, size: 100, lineWidth: 3)
                         Spacer()
                     }
                     .aspectRatio(1, contentMode: .fit)

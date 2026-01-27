@@ -116,8 +116,8 @@ struct RaceView: View {
         guard
             let car = appData.car,
             let userBody = parts.first(where: {$0.id == car.bodyId}),
-            let userEngine = parts.first(where: {$0.id == car.bodyId}),
-            let userWheel = parts.first(where: {$0.id == car.bodyId})
+            let userEngine = parts.first(where: {$0.id == car.engineId}),
+            let userWheel = parts.first(where: {$0.id == car.wheelId})
         else {
             errorMessage = "You don't have a car yet. Restart the app."
             return
@@ -295,6 +295,11 @@ struct RaceView: View {
                                     .fill(Color.black.opacity(0.1))
                                     .frame(width: 160, height: 160)
                                     .cornerRadius(100)
+                                VStack {
+                                    CarBuild(wheelName: userWheelName, bodyName: userBodyName)
+                                }
+                                .frame(width: 160, height: 160)
+                                .cornerRadius(100)
                             }
                             .padding()
                             
@@ -330,6 +335,11 @@ struct RaceView: View {
                                     .fill(Color.black.opacity(0.1))
                                     .frame(width: 160, height: 160)
                                     .cornerRadius(100)
+                                VStack {
+                                    CarBuild(wheelName: opponentWheelName, bodyName: opponentBodyName)
+                                }
+                                .frame(width: 160, height: 160)
+                                .cornerRadius(100)
                             }
                             .padding()
                             
@@ -421,11 +431,11 @@ struct RaceView: View {
                                 Image("race-track")
                                 
                                 if counDownNumber != 0 {
-                                    RaceCar(color: .blue, duration: userDuration, run: 0.0)
-                                    RaceCar(color: .red, duration: opponentDuration, run: 0.0)
+                                    RaceCar(color: .blue, duration: userDuration, run: 0.0, wheelName: userWheelName, bodyName: userBodyName)
+                                    RaceCar(color: .red, duration: opponentDuration, run: 0.0, wheelName: opponentWheelName, bodyName: opponentBodyName)
                                 } else {
-                                    RaceCar(color: .blue, duration: userDuration, run: 1.0)
-                                    RaceCar(color: .red, duration: opponentDuration, run: 1.0)
+                                    RaceCar(color: .blue, duration: userDuration, run: 1.0, wheelName: userWheelName, bodyName: userBodyName)
+                                    RaceCar(color: .red, duration: opponentDuration, run: 1.0, wheelName: opponentWheelName, bodyName: opponentBodyName)
                                 }
                             }
                         }

@@ -80,7 +80,7 @@ struct UseFuel: View {
         } else if useFuelState == "Running" {
             VStack {
                 Spacer()
-                part.getPartShape(neededPart: part.type, progress: partProgress, size: 150)
+                part.getPartShape(neededPart: part.name, progress: partProgress, size: 150, lineWidth: 3)
                 Spacer()
             }
             .aspectRatio(1, contentMode: .fit)

@@ -119,12 +119,9 @@ struct ProfileInfo: View {
                     
                     if (car != nil) {
                         HStack{
-                            VStack {
-                                Text("Body: \(bodyPart?.name ?? "")")
-                                Text("Engine: \(enginePart?.name ?? "")")
-                                Text("Wheels: \(wheelPart?.name ?? "")")
-                            }
+                            CarBuild(wheelName: wheelPart?.name ?? "", bodyName: bodyPart?.name ?? "")
                             .frame(maxWidth: .infinity)
+                            .padding(.trailing, 20)
                             
                             VStack {
                                 partView(bodyPart)
@@ -163,8 +160,15 @@ struct ProfileInfo: View {
     
     func partView(_ part: Part?) -> some View {
         ZStack {
-            Text(part?.name ?? "")
-                .foregroundStyle(Color.black)
+            if ((part?.name) != nil) {
+                Image("\(part?.name.lowercased().replacingOccurrences(of: " ", with: "-") ?? "")-icon")
+                    .resizable()
+                    .scaledToFit()
+                    .padding(8)
+            } else {
+                Text("")
+                    .foregroundStyle(Color.black)
+            }
         }
         .frame(width: 80, height: 80)
         .background(part != nil

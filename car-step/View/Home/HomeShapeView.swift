@@ -12,7 +12,7 @@ struct HomeShapeView: View {
     var body: some View {
         VStack {
             Spacer()
-            part.getPartShape(neededPart: part.type, progress: part.progressPrecent, size: 300)
+            part.getPartShape(neededPart: part.name, progress: part.progressPrecent, size: 300, lineWidth: 6)
             Spacer()
         }
         .aspectRatio(1, contentMode: .fit)
