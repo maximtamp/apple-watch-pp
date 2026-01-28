@@ -9,11 +9,17 @@ import SwiftUI
 import Supabase
 
 struct ProfileInfo: View {
+    @Environment(AppData.self) private var appData
+
     var userId: UUID
     var username: String?
     var avatarURL: String?
+    var friendsData: [Friend]
     
     var onRemoveFriend: (() async -> Void)? = nil
+    
+    @State private var friendState: String = "remove"
+    @State private var localfriendsData: [Friend] = []
     
     @State private var fuel: Int = 0
     @State private var totalParts: Int = 0
@@ -28,12 +34,14 @@ struct ProfileInfo: View {
     @State private var lastSevenDaysTotalSteps: Int = 0
     @State private var lastSevenDaysTotalFuelUsed: Int = 0
     
+    @State var isLoadingPage = false
     @State var isLoading = false
+    @State var showAlert = false
     @State private var avatarImage: AvatarImage?
     
     func prepData() async {
-        isLoading = true
-        defer { isLoading = false }
+        isLoadingPage = true
+        defer { isLoadingPage = false }
         
         fuel = await SupabaseService.shared.fetchFuels(userId: userId).first!.value
         questCompleted = await SupabaseService.shared.fetchQuests(userId: userId).filter { $0.claimed }.count
@@ -54,11 +62,34 @@ struct ProfileInfo: View {
         }
         
         lastSevenDays = await SupabaseService.shared.fetchLastSevenDays(userId: userId)
+        
+        localfriendsData = friendsData
+    }
+    
+    func checkFriendState() {
+        if localfriendsData.contains( where: { $0.userId == userId || $0.friendId == userId }){
+            if let friend = localfriendsData.first( where: { $0.userId == userId }) {
+                if friend.isAccepted {
+                    friendState = "remove"
+                } else {
+                    friendState = "request"
+                }
+            }
+            if let friend = localfriendsData.first( where: { $0.friendId == userId }) {
+                if friend.isAccepted {
+                    friendState = "remove"
+                } else {
+                    friendState = "pending"
+                }
+            }
+        } else {
+            friendState = "add"
+        }
     }
     
     var body: some View {
         ScrollView{
-            if !isLoading {
+            if !isLoadingPage {
                 VStack {
                     HStack {
                         HStack {
@@ -83,6 +114,73 @@ struct ProfileInfo: View {
                     .padding()
                     .background(Color("PrimaryAppColor"))
                     .cornerRadius(12)
+                    
+                    
+                    VStack {
+                        FriendButton(state: friendState, isLoading: isLoading,
+                                     insert: {
+                            Task{
+                                isLoading = true
+                                defer { isLoading = false }
+                                
+                                let newFriend = Friend(
+                                    id: UUID(),
+                                    userId: appData.currentUserId,
+                                    friendId: userId,
+                                    isAccepted: false
+                                )
+                                await SupabaseService.shared.insertFriend(newFriend)
+                                friendState = "pending"
+                            }
+                        },
+                                     delete: {
+                            showAlert = true
+                        },
+                                     accept: {
+                            Task {
+                                isLoading = true
+                                defer { isLoading = false }
+                                
+                                if let relation = friendsData.first(where: { $0.userId == userId && $0.friendId == appData.currentUserId }) {
+                                    
+                                    relation.isAccepted = true
+                                    await SupabaseService.shared.updateFriend(relation)
+                                    friendState = "remove"
+                                }
+                            }
+                        },
+                                     deny: {
+                            Task {
+                                isLoading = true
+                                defer { isLoading = false }
+                                
+                                if let relation = friendsData.first(where: { $0.userId == userId && $0.friendId == appData.currentUserId }) {
+                                    
+                                    await SupabaseService.shared.deleteFriend(relation)
+                                    friendState = "add"
+                                }
+                            }
+                        })
+                    }
+                    .frame(height: 24)
+                    .padding()
+                    .alert("Watch out!", isPresented: $showAlert) {
+                        Button("Yes, Remove", role: .destructive){
+                            Task {
+                                isLoading = true
+                                defer { isLoading = false }
+                                
+                                if let relation = friendsData.first(where: { ($0.userId == userId && $0.friendId == appData.currentUserId) || ($0.userId == appData.currentUserId && $0.friendId == userId) }) {
+                                    
+                                    await SupabaseService.shared.deleteFriend(relation)
+                                    friendState = "add"
+                                }
+                            }
+                        }
+                        Button("Cancel", role: .cancel){}
+                    } message: {
+                        Text("Are you sure you want to remove \(username ?? "this friend")")
+                    }
                     
                     HStack {
                         Spacer()
@@ -136,11 +234,14 @@ struct ProfileInfo: View {
         .onAppear {
             Task{
                 await prepData()
+                checkFriendState()
             }
         }
         .refreshable {
             Task{
                 await prepData()
+                localfriendsData = await SupabaseService.shared.fetchOFriends(userId: appData.currentUserId)
+                checkFriendState()
             }
         }
     }

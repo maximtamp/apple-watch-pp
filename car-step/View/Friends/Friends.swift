@@ -105,7 +105,7 @@ struct Friends: View {
                                         , id: \.id)
                                 { profile in
                                     NavigationLink {
-                                        ProfileInfo(userId: profile.id, username: profile.username, avatarURL: profile.avatarURL)
+                                        ProfileInfo(userId: profile.id, username: profile.username, avatarURL: profile.avatarURL, friendsData: friendsData)
                                     } label: {
                                         HStack {
                                             Text(profile.username ?? "")
@@ -165,7 +165,7 @@ struct Friends: View {
                             if !friends.isEmpty {
                                 ForEach(friends, id: \.id) { profile in
                                     NavigationLink {
-                                        ProfileInfo(userId: profile.id, username: profile.username, avatarURL: profile.avatarURL)
+                                        ProfileInfo(userId: profile.id, username: profile.username, avatarURL: profile.avatarURL, friendsData: friendsData)
                                     } label: {
                                         HStack{
                                             Text(profile.username ?? "")
