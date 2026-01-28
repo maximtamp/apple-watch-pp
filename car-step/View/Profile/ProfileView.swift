@@ -90,8 +90,8 @@ struct ProfileView: View {
                                 Task {
                                     try? await supabase.auth.signOut()
                                     await appData.resetApp(context: context)
+                                    WatchConnectivitySync.shared.sendLogOut()
                                 }
-                                WatchConnectivitySync.shared.sendLogOut()
                             }
                             .foregroundStyle(Color.red)
                         }

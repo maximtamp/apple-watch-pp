@@ -36,6 +36,7 @@ struct RaceView: View {
     @State private var noValidOpponents: [Profile] = []
     
     @State private var username: String = ""
+    @State private var avatarURL: String = ""
     @State private var userBodyName: String = ""
     @State private var userEngineName: String = ""
     @State private var userWheelName: String = ""
@@ -131,6 +132,7 @@ struct RaceView: View {
         
         let user = await SupabaseService.shared.fetchProfile(userId: appData.currentUserId)
         username = user?.username ?? ""
+        avatarURL = user?.avatarURL ?? ""
                 
         if userSpeed > opponentSpeed {
             hasWon = true
@@ -308,10 +310,7 @@ struct RaceView: View {
                                     .fill(Color.blue)
                                     .frame(width: 80, height: 80)
                                     .cornerRadius(100)
-                                Rectangle()
-                                    .fill(Color.black.opacity(0.1))
-                                    .frame(width: 60, height: 60)
-                                    .cornerRadius(100)
+                                AvatarView(avatarURL: avatarURL, size: 60)
                             }
                         }
                         .offset(
@@ -348,10 +347,7 @@ struct RaceView: View {
                                     .fill(Color.red)
                                     .frame(width: 80, height: 80)
                                     .cornerRadius(100)
-                                Rectangle()
-                                    .fill(Color.black.opacity(0.1))
-                                    .frame(width: 60, height: 60)
-                                    .cornerRadius(100)
+                                AvatarView(avatarURL: opponent.avatarURL, size: 60)
                             }
                         }
                         .offset(
@@ -381,10 +377,7 @@ struct RaceView: View {
                                                 .fill(Color.blue)
                                                 .frame(width: 60, height: 60)
                                                 .cornerRadius(100)
-                                            Rectangle()
-                                                .fill(Color.black.opacity(0.1))
-                                                .frame(width: 40, height: 40)
-                                                .cornerRadius(100)
+                                            AvatarView(avatarURL: avatarURL, size: 45)
                                         }
                                     }
                                     
@@ -409,10 +402,7 @@ struct RaceView: View {
                                                 .fill(Color.red)
                                                 .frame(width: 60, height: 60)
                                                 .cornerRadius(100)
-                                            Rectangle()
-                                                .fill(Color.black.opacity(0.1))
-                                                .frame(width: 40, height: 40)
-                                                .cornerRadius(100)
+                                            AvatarView(avatarURL: opponent.avatarURL, size: 45)
                                         }
                                     }
                                     
@@ -490,10 +480,7 @@ struct RaceView: View {
                                         .fill(hasWon ? Color.blue : Color.red)
                                         .frame(width: 100, height: 100)
                                         .cornerRadius(100)
-                                    Rectangle()
-                                        .fill(Color.black.opacity(0.1))
-                                        .frame(width: 80, height: 80)
-                                        .cornerRadius(100)
+                                    AvatarView(avatarURL: hasWon ? avatarURL : opponent.avatarURL, size: 80)
                                 }
                                 ZStack {
                                     Rectangle()
@@ -516,10 +503,7 @@ struct RaceView: View {
                                         .fill(hasWon ? Color.red : Color.blue)
                                         .frame(width: 100, height: 100)
                                         .cornerRadius(100)
-                                    Rectangle()
-                                        .fill(Color.black.opacity(0.1))
-                                        .frame(width: 80, height: 80)
-                                        .cornerRadius(100)
+                                    AvatarView(avatarURL: hasWon ? opponent.avatarURL : avatarURL, size: 80)
                                 }
                                 ZStack {
                                     Rectangle()

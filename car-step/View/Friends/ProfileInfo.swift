@@ -54,10 +54,6 @@ struct ProfileInfo: View {
         }
         
         lastSevenDays = await SupabaseService.shared.fetchLastSevenDays(userId: userId)
-        
-        if let avatarURL, !avatarURL.isEmpty {
-            try? await downloadImage(path: avatarURL)
-        }
     }
     
     var body: some View {
@@ -66,16 +62,7 @@ struct ProfileInfo: View {
                 VStack {
                     HStack {
                         HStack {
-                            Group {
-                                if let avatarImage {
-                                    avatarImage.image.resizable()
-                                } else {
-                                    Color.black.opacity(0.2)
-                                }
-                            }
-                            .scaledToFill()
-                            .frame(width: 64, height: 64)
-                            .clipShape(Circle())
+                            AvatarView(avatarURL: avatarURL, size: 64)
                             
                             Text(username ?? "Unknown")
                             Spacer()
@@ -175,10 +162,5 @@ struct ProfileInfo: View {
                     ? part!.getRarityColor(neededRarity: part!.rarity)
                     : Color.clear)
         .cornerRadius(12)
-    }
-    
-    private func downloadImage(path: String) async throws {
-        let data = try await supabase.storage.from("avatars").download(path: path)
-        avatarImage = AvatarImage(data: data)
     }
 }
