@@ -29,55 +29,56 @@ struct Home: View {
 
         if let today = appData.today, let part = appData.part, let fuel = appData.fuel {
             ScrollView{
-                HomeShapeView(part: part)
                 VStack {
-                    HStack {
-                        Button("Claim Step") {
-                            fuel.value += today.totalSteps - today.claimedSteps
-                            today.claimedSteps += today.totalSteps - today.claimedSteps
-                            
-                            try? context.save()
-                            
-                            Task{
-                                await SupabaseService.shared.updateDay(today)
-                                await SupabaseService.shared.updateFuel(fuel)
+                    HomeShapeView(part: part)
+                        .padding(.vertical)
+                    VStack {
+                        HStack {
+                            BigIconTextButton(label: "Claim Steps", icon: "shoeprints.fill", disabled: today.totalSteps - today.claimedSteps == 0){
+                                let stepsToClaim = today.totalSteps - today.claimedSteps
+                                
+                                fuel.value += stepsToClaim
+                                today.claimedSteps += stepsToClaim
+                                
+                                try? context.save()
+                                
+                                Task{
+                                    await SupabaseService.shared.updateDay(today)
+                                    await SupabaseService.shared.updateFuel(fuel)
+                                }
+                                WatchConnectivitySync.shared.sendToday(today)
+                                WatchConnectivitySync.shared.sendFuel(fuel)
                             }
-                            WatchConnectivitySync.shared.sendToday(today)
-                            WatchConnectivitySync.shared.sendFuel(fuel)
+                            
+                            BigIconTextButton(label: "Use Fuel", icon: "bolt.fill", disabled: fuel.value == 0) {
+                                showUseFuelPopover = true
+                            }
+                            .popover(isPresented: $showUseFuelPopover) {
+                                UseFuel(
+                                    fuel: fuel,
+                                    part: part,
+                                    today: today,
+                                    onClose: closeUseFuelPopover
+                                )
+                            }
+                            
+                            BigIconTextButton(label: "Race", icon: "flag.pattern.checkered"){
+                                showRacePopover = true
+                            }
+                            .popover(isPresented: $showRacePopover) {
+                                RaceView(
+                                    onClose: closeRacelPopover
+                                )
+                            }
                         }
-                        .buttonStyle(.borderedProminent)
-                        .disabled(today.totalSteps - today.claimedSteps == 0)
-                        Button("Use Fuel") {
-                            showUseFuelPopover = true
-                        }
-                        .buttonStyle(.borderedProminent)
-                        .disabled(fuel.value == 0)
-                        .popover(isPresented: $showUseFuelPopover) {
-                            UseFuel(
-                                fuel: fuel,
-                                part: part,
-                                today: today,
-                                onClose: closeUseFuelPopover
-                            )
-                        }
+                        .padding(.vertical, 20)
                         
-                        Button("Race") {
-                            showRacePopover = true
-                        }
-                        .buttonStyle(.borderedProminent)
-                        .popover(isPresented: $showRacePopover) {
-                            RaceView(
-                                onClose: closeRacelPopover
-                            )
+                        VStack{
+                            HomeValueDisplayCard(label: "Total Steps", icon: "shoeprints.fill", color: .blue, value: today.totalSteps)
+                            HomeValueDisplayCard(label: "Claimable steps", icon: "hand.point.up.left.fill", color: .yellow, value: today.totalSteps - today.claimedSteps)
+                            HomeValueDisplayCard(label: "Fuel", icon: "bolt.fill", color: .red, value: fuel.value)
                         }
                     }
-                    .padding(.vertical, 20)
-                    
-                    HStack{
-                        Card(value: today.totalSteps, name: "Total Steps", image: Image(systemName: "figure.walk"), color: .blue)
-                        Card(value: fuel.value, name: "Fuel", image: Image(systemName: "bolt.fill"), color: .red)
-                    }
-                    Card(value: today.totalSteps - today.claimedSteps, name: "Claimable steps", image: Image(systemName: "hand.point.up.left.fill"), color: .yellow)
                 }
             }
             .padding()

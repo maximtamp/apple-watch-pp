@@ -8,6 +8,13 @@
 import SwiftUI
 import SwiftData
 
+enum UseFuelState: String, Codable, CaseIterable {
+    case amountPicking
+    case running
+    case shapeDone
+    case shapeNotDone
+}
+
 struct UseFuel: View {
     var fuel: Fuel
     var part: Part
@@ -20,18 +27,69 @@ struct UseFuel: View {
     @Query private var parts: [Part]
     
     @State private var amountOfFuelUse: Int = 0
-    @State private var useFuelState: String = "AmountPicking"
-    
+    @State private var useFuelState: UseFuelState = .amountPicking
     @State private var partProgress: Double = 0
+    @State private var createdPart: Part? = nil
     
-    @State private var createdPartName: String = ""
-    @State private var createdPartType: String = ""
-    @State private var createdPartRarity: String = ""
+    @State private var runRunning: Bool = false
+    @State private var runEnd: Bool = false
+    @State private var animatedFuelRemaining: Int = 0
+    
+    
+    func handleStart() {
+        runRunning = true
+        
+        DispatchQueue.main.asyncAfter(deadline: .now() + 1.0) {
+            animatedFuelRemaining = amountOfFuelUse
+            useFuelState = .running
+            
+            DispatchQueue.main.asyncAfter(deadline: .now() + 1.0) {
+                let newPartProgress = Double(part.progressValue + amountOfFuelUse) / Double(part.maxValue)
+                let duration = max(3.0, Double(amountOfFuelUse) / 500.0)
+                
+                withAnimation(.linear(duration: duration)) {
+                    partProgress = newPartProgress
+                    animateFuelDown(duration: duration)
+                } completion: {
+                    runRunning = true
+                    DispatchQueue.main.asyncAfter(deadline: .now() + 1.0) {
+                        appData.updateFuel(fuel: fuel, newValue: fuel.value - amountOfFuelUse)
+                        appData.updateTodayUsedFuel(today: today, newValue: today.usedFuel + amountOfFuelUse)
+                        if partProgress == 1.0 {
+                            createdPart = part
+                            
+                            useFuelState = .shapeDone
+                            appData.finishedPart(part: part, context: context)
+                            WatchConnectivitySync.shared.sendParts(parts)
+                        } else {
+                            useFuelState = .shapeNotDone
+                            appData.updatePartProgrss(part: part, newValue: part.progressValue + amountOfFuelUse)
+                        }
+                    }
+                }
+            }
+        }
+    }
+    
+    func animateFuelDown(duration: Double) {
+        guard amountOfFuelUse > 0 else { return }
+
+        let steps = amountOfFuelUse
+        let interval = duration / Double(steps)
+
+        for i in 0...steps {
+            DispatchQueue.main.asyncAfter(deadline: .now() + Double(i) * interval) {
+                animatedFuelRemaining = max(0, amountOfFuelUse - i)
+            }
+        }
+    }
     
     var body: some View {
-        if useFuelState == "AmountPicking" {
-            VStack {
-                HStack{
+
+        VStack{
+            if useFuelState == .amountPicking {
+                HStack {
+                    Spacer()
                     ZStack {
                         Image(systemName: "bolt.fill")
                             .font(.system(size: 20))
@@ -41,106 +99,178 @@ struct UseFuel: View {
                     .cornerRadius(90)
                     Text("\(fuel.value)")
                 }
-                Text("How mutch Fuel do you wanne use?")
-                Text("\(amountOfFuelUse)")
-                .multilineTextAlignment(.center)
-                .font(.title)
-                
-                let minValue = 0
-                let maxValue = part.maxValue - part.progressValue
-                
-                HStack {
-                    Button("-1%") {
-                        amountOfFuelUse = max(minValue, amountOfFuelUse - fuel.value / 100)
-                    }
-                    .disabled(amountOfFuelUse - fuel.value / 100 < 0)
-                    .buttonStyle(.bordered)
-                    Button("-10%") {
-                        amountOfFuelUse = max(minValue, amountOfFuelUse - fuel.value / 10)
-                    }
-                    .disabled(amountOfFuelUse - fuel.value / 10 < 0)
-                    .buttonStyle(.bordered)
-                    Button("+10%") {
-                        amountOfFuelUse = min(maxValue, amountOfFuelUse + fuel.value / 10)
-                    }
-                    .buttonStyle(.bordered)
-                    .disabled(amountOfFuelUse >= min(fuel.value, part.maxValue - part.progressValue))
-                    Button("+1%") {
-                        amountOfFuelUse = min(maxValue, amountOfFuelUse + fuel.value / 100)
-                    }
-                    .buttonStyle(.bordered)
-                    .disabled(amountOfFuelUse >= min(fuel.value, part.maxValue - part.progressValue))
+                .opacity(runRunning ? 0.0 : 1.0)
+                .animation(.snappy(duration: 1.0), value: runRunning)
+            }
+        }
+        .padding(24)
+        .frame(height: 80)
+        
+        VStack {
+            Spacer()
+            if useFuelState == .shapeDone && (createdPart != nil){
+                ZStack{
+                    part.getPartShape(neededPart: createdPart!.name, progress: partProgress, size: 225, lineWidth: 5)
+                        .opacity(runEnd ? 0.0 : 1.0)
+                        .animation(.snappy(duration: 1.5), value: runEnd)
+                    Image("\(createdPart!.name.lowercased().replacingOccurrences(of: " ", with: "-"))-icon")
+                        .resizable()
+                        .scaledToFit()
+                        .opacity(runEnd ? 1.0 : 0.0)
+                        .animation(.snappy(duration: 3.0), value: runEnd)
                 }
-                HStack {
-                    Button("Min") {
-                        amountOfFuelUse = 1
+            } else {
+                part.getPartShape(neededPart: part.name, progress: useFuelState == .amountPicking ? part.progressPrecent : partProgress, size: 225, lineWidth: 5)
+            }
+            Spacer()
+        }
+        .aspectRatio(1, contentMode: .fit)
+        .frame(width: 250, height: 250)
+        .padding(24)
+        .background( useFuelState == .shapeDone && (createdPart != nil) ? createdPart!.getRarityColor(neededRarity: createdPart!.rarity) : part.getRarityColor(neededRarity: part.rarity))
+        .cornerRadius(32)
+        
+        Spacer()
+        switch useFuelState {
+        case .amountPicking:
+            VStack {
+                VStack{
+                    VStack(spacing: 12){
+                        Text("How mutch Fuel do you wanne use?")
+                            .bold()
+                        Text("\(amountOfFuelUse)")
+                        .multilineTextAlignment(.center)
+                        .font(.title)
+                        .bold()
                     }
-                    .buttonStyle(.borderedProminent)
-                    .disabled(amountOfFuelUse <= 1)
-                    Button("Max") {
-                        amountOfFuelUse = min(fuel.value, part.maxValue - part.progressValue)
-                    }
-                    .buttonStyle(.borderedProminent)
-                    .disabled(amountOfFuelUse == part.maxValue - part.progressValue)
-                }
-                Button("Start") {
-                    useFuelState = "Running"
                     
-                    let newPartProgress = Double(part.progressValue + amountOfFuelUse) / Double(part.maxValue)
-                    withAnimation(.linear(duration: max(3.0, Double(amountOfFuelUse) / 500.0))) {
-                        partProgress = newPartProgress
-                    } completion: {
-                        appData.updateFuel(fuel: fuel, newValue: fuel.value - amountOfFuelUse)
-                        appData.updateTodayUsedFuel(today: today, newValue: today.usedFuel + amountOfFuelUse)
-                        if partProgress == 1.0 {
-                            createdPartName = part.name
-                            createdPartType = part.type.displayName
-                            createdPartRarity = part.rarity.displayName
+                    let minValue = 0
+                    let maxValue = min(fuel.value, part.maxValue - part.progressValue)
+                    
+                    VStack{
+                        HStack {
+                            TextButton(label: "-1%", disabled: amountOfFuelUse - fuel.value / 100 < 0){
+                                amountOfFuelUse = max(minValue, amountOfFuelUse - fuel.value / 100)
+                            }
                             
-                            useFuelState = "ShapeDone"
-                            appData.finishedPart(part: part, context: context)
-                            WatchConnectivitySync.shared.sendParts(parts)
-                        } else {
-                            useFuelState = "ShapeNotDone"
-                            appData.updatePartProgrss(part: part, newValue: part.progressValue + amountOfFuelUse)
+                            TextButton(label: "-10%", disabled: amountOfFuelUse - fuel.value / 10 < 0){
+                                amountOfFuelUse = max(minValue, amountOfFuelUse - fuel.value / 10)
+                            }
+                            
+                            TextButton(label: "+10%", disabled: amountOfFuelUse + fuel.value / 10 > maxValue){
+                                amountOfFuelUse = min(maxValue, amountOfFuelUse + fuel.value / 10)
+                            }
+                            
+                            TextButton(label: "+1%", disabled: amountOfFuelUse + fuel.value / 100 > maxValue){
+                                amountOfFuelUse = min(maxValue, amountOfFuelUse + fuel.value / 100)
+                            }
                         }
+                        HStack {
+                            TextButton(label: "Min", disabled: amountOfFuelUse <= 1){
+                                amountOfFuelUse = 1
+                            }
+                            
+                            TextButton(label: "Max", disabled: amountOfFuelUse == maxValue){
+                                amountOfFuelUse = maxValue
+                            }
+                        }
+                        
+                        TextButton(label: "Start", disabled: amountOfFuelUse == 0){
+                            handleStart()
+                        }
+                        .padding(.top, 20)
                     }
+                    .padding()
                 }
-                .buttonStyle(.borderedProminent)
-                .padding(.top, 20)
-                .disabled(amountOfFuelUse == 0)
+                .offset(
+                    x: runRunning ? -600 : 0,
+                    y: 0
+                )
+                .animation(.snappy(duration: 1.0), value: runRunning)
             }
             .onAppear {
                 partProgress = Double(part.progressValue) / Double(part.maxValue)
             }
-        } else if useFuelState == "Running" {
-            VStack {
-                Spacer()
-                part.getPartShape(neededPart: part.name, progress: partProgress, size: 300, lineWidth: 6)
-                Spacer()
+        case .running:
+            HStack(spacing: 12) {
+                ZStack {
+                    Image(systemName: "bolt.fill")
+                        .font(.system(size: 28))
+                }
+                .frame(width: 52, height: 52)
+                .background(Color.red.opacity(0.5))
+                .cornerRadius(90)
+                
+                Text("\(animatedFuelRemaining)")
+                    .font(.largeTitle)
+                    .bold()
             }
-            .aspectRatio(1, contentMode: .fit)
-            .frame(width: 300, height: 300)
-        }
-        if useFuelState == "ShapeDone" {
-            Text("You have completed a part!")
-                .font(.title)
-            Text("\(part.name) has been added to you collection")
-            VStack {
-                Text("Name: \(createdPartName)")
-                Text("Type: \(createdPartType)")
-                Text("Rarity: \(createdPartRarity)")
+            .padding(.bottom, 160)
+            .offset(
+                x: 0,
+                y: runRunning ? 300 : 0
+            )
+            .animation(.snappy(duration: 1.0), value: runRunning)
+            .onAppear {
+                runRunning = false
             }
-            Button("Back to Home"){
-                onClose()
+        case .shapeDone:
+            VStack(spacing: 80) {
+                VStack {
+                    Text("You have completed a part!")
+                        .multilineTextAlignment(.center)
+                        .font(.title)
+                        .bold()
+                    Text("\(createdPart!.name) has been added to you collection")
+                        .multilineTextAlignment(.center)
+                }
+
+                TextButton(label: "Close", disabled: false){
+                    onClose()
+                }
             }
-        } else if useFuelState == "ShapeNotDone" {
-            Text("Not Done")
-            Button("Back to Home"){
-                onClose()
+            .padding(.horizontal)
+            .padding(.bottom, 30)
+            .offset(
+                x: runEnd ? 0 : 600,
+                y: 0
+            )
+            .animation(.snappy(duration: 1.0), value: runEnd)
+            .onAppear {
+                runEnd = true
+            }
+        case .shapeNotDone:
+            VStack(spacing: 120) {
+                Text("Part not complete")
+                    .font(.title)
+                    .bold()
+                TextButton(label: "Close", disabled: false){
+                    onClose()
+                }
+            }
+            .padding(.horizontal)
+            .padding(.bottom, 30)
+            .offset(
+                x: runEnd ? 0 : 600,
+                y: 0
+            )
+            .animation(.snappy(duration: 1.0), value: runEnd)
+            .onAppear {
+                runEnd = true
             }
         }
     }
+    
+    @Animatable
+    struct FuelText: View {
+        var value: Double
+
+        var body: some View {
+            Text("\(Int(value))")
+                .font(.largeTitle)
+        }
+    }
+
 }
 
 #Preview {
