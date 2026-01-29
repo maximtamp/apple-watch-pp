@@ -72,8 +72,8 @@ struct ContentView: View {
                             Tab("Home", systemImage: "house") {
                                 Home()
                             }
-                            Tab("Quests", systemImage: "scroll.fill") {
-                                Quests()
+                            Tab("Challenge", systemImage: "scroll.fill") {
+                                Challenge()
                             }
                             Tab("Garage", systemImage: "door.garage.closed") {
                                 Garage()
