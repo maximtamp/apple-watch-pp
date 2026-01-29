@@ -21,57 +21,76 @@ struct Authorization: View {
             if !isLoading {
                 if allowed {
                     VStack {
+                        Spacer()
                         Image(systemName: "checkmark.circle")
                             .font(.system(size: 200))
                             .padding(.bottom, 60)
-                        Text("Steps Counted")
-                            .font(.title)
-                            .bold()
-                        Text("Thank You for allowing us to use your step count")
-                            .frame(maxWidth: 300)
-                            .multilineTextAlignment(.center)
-                        Button("Go to App") {
-                            isAllowedReadingSteps = true
+                        Spacer()
+                        VStack(spacing: 40) {
+                            VStack {
+                                Text("Steps Counted")
+                                    .font(.title)
+                                    .bold()
+                                Text("Thank You for allowing us to use your step count")
+                                    .frame(maxWidth: 300)
+                                    .multilineTextAlignment(.center)
+                            }
+                            TextButton(label: "Go to App", disabled: false){
+                                isAllowedReadingSteps = true
+                            }
                         }
-                        .buttonStyle(.borderedProminent)
                         .padding(.top, 20)
+                        .padding(.bottom, 30)
+                        .padding(.horizontal)
                     }
+                    .frame(maxWidth: .infinity, maxHeight: .infinity)
+                    
                 } else {
                     VStack {
+                        Spacer()
                         Image(systemName: "exclamationmark.triangle")
                             .font(.system(size: 200))
                             .padding(.bottom, 60)
-                        Text("You did not give us access!")
-                            .font(.title)
-                            .bold()
-                        Text("You can still do this in settings. Go to Setting > Privacy and Security > Health > Car Step")
-                            .frame(maxWidth: 300)
-                            .multilineTextAlignment(.center)
-                            .padding(.top, 10)
-                        HStack {
-                            Button("Go to Settings") {
-                                if let url = URL(string: UIApplication.openSettingsURLString) {
-                                    UIApplication.shared.open(url)
-                                }
+                        Spacer()
+                        VStack(spacing: 40) {
+                            VStack {
+                                Text("You did not give us access!")
+                                    .font(.title)
+                                    .bold()
+                                Text("You can still do this in settings. Go to Setting > Privacy and Security > Health > Car Step")
+                                    .frame(maxWidth: 300)
+                                    .multilineTextAlignment(.center)
                             }
-                            .buttonStyle(.bordered)
-                            Button("Refresh") {
-                                Task {
-                                    allowed = await manager.requestStepAuthorization()
+                            VStack(spacing: 20) {
+                                TextButton(label: "Refresh", disabled: false){
+                                    Task {
+                                        allowed = await manager.requestStepAuthorization()
+                                    }
                                 }
+                                
+                                Button("Go to Settings") {
+                                    if let url = URL(string: UIApplication.openSettingsURLString) {
+                                        UIApplication.shared.open(url)
+                                    }
+                                }
+                                .buttonStyle(.plain)
+                                .foregroundStyle(Color("SecondaryAppColor"))
                             }
-                            .buttonStyle(.borderedProminent)
+                            .padding(.top, 20)
                         }
                         .padding(.top, 20)
+                        .padding(.bottom, 30)
+                        .padding(.horizontal)
                     }
+                    .frame(maxWidth: .infinity, maxHeight: .infinity)
                 }
             } else {
                 ProgressView()
             }
         }
-        .foregroundStyle(.white)
         .frame(maxWidth: .infinity, maxHeight: .infinity)
-        .background(Color.black.opacity(0.9))
+        .foregroundStyle(Color("SecondaryAppColor"))
+        .background(Color("PrimaryAppColor"))
         .onAppear {
             Task {
                 isLoading = true

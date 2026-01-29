@@ -110,7 +110,7 @@ struct UseFuel: View {
             Spacer()
             if useFuelState == .shapeDone && (createdPart != nil){
                 ZStack{
-                    part.getPartShape(neededPart: createdPart!.name, progress: partProgress, size: 225, lineWidth: 5)
+                    part.getPartShape(color: Color.black, neededPart: createdPart!.name, progress: partProgress, size: 225, lineWidth: 5)
                         .opacity(runEnd ? 0.0 : 1.0)
                         .animation(.snappy(duration: 1.5), value: runEnd)
                     Image("\(createdPart!.name.lowercased().replacingOccurrences(of: " ", with: "-"))-icon")
@@ -120,7 +120,7 @@ struct UseFuel: View {
                         .animation(.snappy(duration: 3.0), value: runEnd)
                 }
             } else {
-                part.getPartShape(neededPart: part.name, progress: useFuelState == .amountPicking ? part.progressPrecent : partProgress, size: 225, lineWidth: 5)
+                part.getPartShape(color: Color.black, neededPart: part.name, progress: useFuelState == .amountPicking ? part.progressPrecent : partProgress, size: 225, lineWidth: 5)
             }
             Spacer()
         }

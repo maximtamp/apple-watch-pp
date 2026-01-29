@@ -12,7 +12,7 @@ struct HomeShapeView: View {
     var body: some View {
         VStack {
             Spacer()
-            part.getPartShape(neededPart: part.name, progress: part.progressPrecent, size: 225, lineWidth: 5)
+            part.getPartShape(color: Color.black, neededPart: part.name, progress: part.progressPrecent, size: 225, lineWidth: 5)
             Spacer()
         }
         .frame(width: 225, height: 225)

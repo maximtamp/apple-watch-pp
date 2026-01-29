@@ -18,7 +18,7 @@ struct UseFuelPage: View {
                 VStack(spacing: 12) {
                     VStack {
                         Spacer()
-                        part.getPartShape(neededPart: part.name, progress: part.progressPrecent, size: 100, lineWidth: 3)
+                        part.getPartShape(color: Color.white, neededPart: part.name, progress: part.progressPrecent, size: 100, lineWidth: 3)
                         Spacer()
                     }
                     .aspectRatio(1, contentMode: .fit)
@@ -27,6 +27,7 @@ struct UseFuelPage: View {
                     NavigationLink("Use Fuel") {
                         UseFuel(fuel: fuel, part: part, today: today)
                     }
+                    .disabled(fuel.value > 0)
                 }
                 .frame(maxWidth: .infinity, maxHeight: .infinity)
             }

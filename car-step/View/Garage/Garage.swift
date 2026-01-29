@@ -37,66 +37,69 @@ struct Garage: View {
                 .frame(maxWidth: .infinity, maxHeight: 300)
                 .padding(.horizontal, 40)
                 
-                HStack{
-                    ForEach(tabs, id: \.id) { tab in
-                        Button {
-                            selectedTab = tab.name
-                        } label: {
-                            Image(systemName: tab.icon)
-                                .font(.title2)
-                                .frame(maxWidth: .infinity, maxHeight: 60)
-                                .foregroundColor(selectedTab == tab.name ? .blue : .gray)
-                                .background(selectedTab == tab.name ? .gray.opacity(0.4) : .gray.opacity(0.2))
-                                .cornerRadius(90)
-                                .padding(.vertical, 8)
-                        }
-                    }
-                }
-                .frame(maxWidth: .infinity, maxHeight: 60)
-                .background(Color.black.opacity(0.1))
-                
-                ScrollView {
-                    LazyVGrid(columns: [GridItem(.flexible()), GridItem(.flexible()), GridItem(.flexible())]){
-                        ForEach(
-                            parts
-                                .filter {$0.type.displayName == selectedTab && $0.partMade}
-                                .sorted{partA, partB in
-                                    if partA.id == car.bodyId || partA.id == car.engineId || partA.id == car.wheelId {
-                                        return true
-                                    }
-                                    if partB.id == car.bodyId || partB.id == car.engineId || partB.id == car.wheelId {
-                                        return false
-                                    }
-                                    
-                                    let rarityA = rarityOrder.firstIndex(of: partA.rarity.displayName) ?? 0
-                                    let rarityB = rarityOrder.firstIndex(of: partB.rarity.displayName) ?? 0
-                                    return rarityA > rarityB
-                                }
-                        ) { part in
-                            
+                VStack(spacing: 0) {
+                    HStack{
+                        ForEach(tabs, id: \.id) { tab in
                             Button {
-                                appData.updateCarPartId(car: car, partType: part.type, newID: part.id)
+                                selectedTab = tab.name
                             } label: {
-                                VStack {
-                                    Image("\(part.name.lowercased().replacingOccurrences(of: " ", with: "-"))-icon")
-                                        .resizable()
-                                        .scaledToFit()
-                                        .padding(8)
-                                }
-                                .frame(maxWidth: .infinity, maxHeight: .infinity)
-                                .background(part.getRarityColor(neededRarity: part.rarity))
-                                .aspectRatio(1, contentMode: .fill)
-                                .cornerRadius(16)
-                                .overlay(
-                                    RoundedRectangle(cornerRadius: 16)
-                                        .stroke(part.id == car.bodyId || part.id == car.engineId || part.id == car.wheelId ? Color.black : Color.clear, lineWidth: 4)
-                                )
+                                Image(systemName: tab.icon)
+                                    .font(.title2)
+                                    .frame(maxWidth: .infinity)
+                                    .padding(12)
+                                    .foregroundColor(Color.white)
+                                    .background(selectedTab == tab.name ? Color.blue.opacity(0.5) : Color.blue)
+                                    .cornerRadius(8)
                             }
                         }
                     }
+                    .padding(8)
+                    .frame(maxWidth: .infinity)
+                    .background(Color("SecondaryAppColor").opacity(0.2))
+                    
+                    ScrollView {
+                        LazyVGrid(columns: [GridItem(.flexible()), GridItem(.flexible()), GridItem(.flexible())]){
+                            ForEach(
+                                parts
+                                    .filter {$0.type.displayName == selectedTab && $0.partMade}
+                                    .sorted{partA, partB in
+                                        if partA.id == car.bodyId || partA.id == car.engineId || partA.id == car.wheelId {
+                                            return true
+                                        }
+                                        if partB.id == car.bodyId || partB.id == car.engineId || partB.id == car.wheelId {
+                                            return false
+                                        }
+                                        
+                                        let rarityA = rarityOrder.firstIndex(of: partA.rarity.displayName) ?? 0
+                                        let rarityB = rarityOrder.firstIndex(of: partB.rarity.displayName) ?? 0
+                                        return rarityA > rarityB
+                                    }
+                            ) { part in
+                                
+                                Button {
+                                    appData.updateCarPartId(car: car, partType: part.type, newID: part.id)
+                                } label: {
+                                    VStack {
+                                        Image("\(part.name.lowercased().replacingOccurrences(of: " ", with: "-"))-icon")
+                                            .resizable()
+                                            .scaledToFit()
+                                            .padding(8)
+                                    }
+                                    .frame(maxWidth: .infinity, maxHeight: .infinity)
+                                    .background(part.getRarityColor(neededRarity: part.rarity))
+                                    .aspectRatio(1, contentMode: .fill)
+                                    .cornerRadius(16)
+                                    .overlay(
+                                        RoundedRectangle(cornerRadius: 16)
+                                            .stroke(part.id == car.bodyId || part.id == car.engineId || part.id == car.wheelId ? Color("SecondaryAppColor") : Color.clear, lineWidth: 4)
+                                    )
+                                }
+                            }
+                        }
+                        .padding(12)
+                    }
+                    .background(Color("SecondaryAppColor").opacity(0.15))
                 }
-                .padding(.horizontal, 8)
-                
             } else {
                 ProgressView("Loading Today's Steps")
             }
