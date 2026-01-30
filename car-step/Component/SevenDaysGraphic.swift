@@ -6,10 +6,11 @@
 //
 
 import SwiftUI
+import Charts
 
 struct SevenDaysGraphic: View {
     var days: [Day]
-    
+
     @State private var lastSevenDays: [Day] = []
     @State private var lastSevenDaysTotalSteps: Int = 0
     @State private var lastSevenDaysTotalFuelUsed: Int = 0
@@ -17,36 +18,23 @@ struct SevenDaysGraphic: View {
     var body: some View {
         VStack(alignment: .leading){
             Text("Last 7 Days")
+                .bold()
             
-            HStack {
-                Text("Total steps: \(lastSevenDaysTotalSteps)")
-                Text("Total fuel used: \(lastSevenDaysTotalFuelUsed)")
+            Chart(days.sorted { $0.date < $1.date }) { day in
+                LineMark(x: .value("Date", day.date), y: .value("TotalSteps", day.totalSteps))
+                    .foregroundStyle(by: .value("Type", "TotalSteps (\(lastSevenDaysTotalSteps))"))
+                    .symbol(by: .value("Type", "TotalSteps (\(lastSevenDaysTotalSteps))"))
+                LineMark(x: .value("Date", day.date), y: .value("UsedFuel", day.usedFuel))
+                    .foregroundStyle(by: .value("Type", "UsedFuel (\(lastSevenDaysTotalFuelUsed))"))
+                    .symbol(by: .value("Type", "UsedFuel (\(lastSevenDaysTotalFuelUsed))"))
             }
-            
-            ForEach(lastSevenDays, id: \.self) { day in
-                HStack {
-                    VStack {
-                        Text("Total steps: \(day.totalSteps)")
-                        Text("Total fuel used: \(day.usedFuel)")
-                    }
-                    Spacer()
-                    Text(day.date.formatted(date: .abbreviated, time: .omitted))
-                }
-                .padding()
-                .frame(maxWidth: .infinity)
-                .foregroundStyle(Color("PrimaryAppColor"))
-                .background(Color.gray)
-                .padding(.horizontal, 4)
-            }
+            .aspectRatio(16/9, contentMode: .fit)
         }
         .padding()
         .frame(maxWidth: .infinity)
         .background(Color("PrimaryAppColor"))
         .cornerRadius(12)
         .onAppear {
-            lastSevenDaysTotalSteps = lastSevenDays.reduce(0) { $0 + $1.totalSteps }
-            lastSevenDaysTotalFuelUsed = lastSevenDays.reduce(0) { $0 + $1.usedFuel }
-            
             let calendar = Calendar.current
             let today = calendar.startOfDay(for: Date())
 
@@ -61,7 +49,9 @@ struct SevenDaysGraphic: View {
                     return Day(id: UUID(), userId: UUID(), date: date, totalSteps: 0, claimedSteps: 0, usedFuel: 0)
                 }
             }
-
+            
+            lastSevenDaysTotalSteps = lastSevenDays.reduce(0) { $0 + $1.totalSteps }
+            lastSevenDaysTotalFuelUsed = lastSevenDays.reduce(0) { $0 + $1.usedFuel }
         }
     }
 }

@@ -43,47 +43,82 @@ struct Friends: View {
                 VStack{
                     if !friendRequests.isEmpty {
                         VStack{
-                            Text("Friend requests")
+                            HStack {
+                                Text("Friend requests")
+                                Spacer()
+                            }
+                            .padding(.leading)
                             ForEach(friendRequests, id: \.id) { profile in
-                                HStack{
-                                    Text(profile.username ?? "")
-                                    Spacer()
-                                    Button {
-                                        Task{
-                                            if let relation = friendsData.first(where: { $0.userId == profile.id && $0.friendId == appData.currentUserId }) {
+                                NavigationLink {
+                                    FriendDetail(userId: profile.id, username: profile.username, avatarURL: profile.avatarURL, friendsData: friendsData)
+                                } label: {
+                                    HStack{
+                                        Text(profile.username ?? "")
+                                        Spacer()
+                                        
+                                        Button {
+                                            Task{
+                                                isLoading = true
+                                                defer { isLoading = false }
                                                 
-                                                relation.isAccepted = true
-                                                await SupabaseService.shared.updateFriend(relation)
-                                                
-                                                await prepFriends(userId: appData.currentUserId)
+                                                if let relation = friendsData.first(where: { $0.userId == profile.id && $0.friendId == appData.currentUserId }) {
+                                                    
+                                                    await SupabaseService.shared.deleteFriend(relation)
+                                                    await prepFriends(userId: appData.currentUserId)
+                                                }
                                             }
-                                        }
-                                    } label: {
-                                        Image(systemName: "checkmark.circle.fill")
-                                            .foregroundStyle(Color.green)
-                                            .font(.title)
-                                    }
-                                    Button {
-                                        Task{
-                                            if let relation = friendsData.first(where: { $0.userId == profile.id && $0.friendId == appData.currentUserId }) {
-                                                
-                                                await SupabaseService.shared.deleteFriend(relation)
-                                                await prepFriends(userId: appData.currentUserId)
+                                        } label: {
+                                            HStack {
+                                                if isLoading {
+                                                    ProgressView()
+                                                } else {
+                                                    Image(systemName: "xmark")
+                                                }
                                             }
+                                            .foregroundStyle(Color.white)
+                                            .font(.title2)
+                                            .frame(width: 40, height: 40)
+                                            .background(isLoading ? Color.gray.opacity(0.5) : Color.red)
+                                            .cornerRadius(8)
                                         }
-                                    } label: {
-                                        Image(systemName: "xmark.circle.fill")
-                                            .foregroundStyle(Color.red)
-                                            .font(.title)
+                                        Button {
+                                            Task{
+                                                isLoading = true
+                                                defer { isLoading = false }
+                                                
+                                                if let relation = friendsData.first(where: { $0.userId == profile.id && $0.friendId == appData.currentUserId }) {
+                                                    
+                                                    relation.isAccepted = true
+                                                    await SupabaseService.shared.updateFriend(relation)
+                                                    
+                                                    await prepFriends(userId: appData.currentUserId)
+                                                }
+                                            }
+                                        } label: {
+                                            HStack {
+                                                if isLoading {
+                                                    ProgressView()
+                                                } else {
+                                                    Image(systemName: "checkmark")
+                                                }
+                                            }
+                                            .foregroundStyle(Color.white)
+                                            .font(.title2)
+                                            .frame(width: 40, height: 40)
+                                            .background(isLoading ? Color.gray.opacity(0.5) : Color.green)
+                                            .cornerRadius(8)
+                                        }
                                     }
+                                    .padding()
+                                    .background(Color("PrimaryAppColor"))
+                                    .foregroundStyle(Color("SecondaryAppColor"))
+                                    .cornerRadius(12)
+                                    .padding(.horizontal, 16)
                                 }
-                                .padding()
-                                .background(Color("PrimaryAppColor"))
-                                .cornerRadius(12)
-                                .padding()
                             }
                         }
                         Divider()
+                            .padding()
                     }
                     
                     VStack {
@@ -105,7 +140,7 @@ struct Friends: View {
                                         , id: \.id)
                                 { profile in
                                     NavigationLink {
-                                        ProfileInfo(userId: profile.id, username: profile.username, avatarURL: profile.avatarURL, friendsData: friendsData)
+                                        FriendDetail(userId: profile.id, username: profile.username, avatarURL: profile.avatarURL, friendsData: friendsData)
                                     } label: {
                                         HStack {
                                             Text(profile.username ?? "")
@@ -163,9 +198,15 @@ struct Friends: View {
                             .padding(.horizontal, 16)
                         } else {
                             if !friends.isEmpty {
+                                HStack {
+                                    Text("Friends")
+                                    Spacer()
+                                }
+                                .padding(.leading)
+                                    
                                 ForEach(friends, id: \.id) { profile in
                                     NavigationLink {
-                                        ProfileInfo(userId: profile.id, username: profile.username, avatarURL: profile.avatarURL, friendsData: friendsData)
+                                        FriendDetail(userId: profile.id, username: profile.username, avatarURL: profile.avatarURL, friendsData: friendsData)
                                     } label: {
                                         HStack{
                                             Text(profile.username ?? "")
@@ -182,6 +223,7 @@ struct Friends: View {
                                 }
                             } else {
                                 Text("No friends yet, search friends to add")
+                                    .foregroundStyle(Color("SecondaryAppColor").opacity(0.5))
                             }
                         }
                     }

@@ -335,6 +335,21 @@ final class SupabaseService {
         }
     }
     
+    func fetchWonRacesCount(userId: UUID) async -> Int {
+        do {
+            let response = try await supabase
+                .from("races")
+                .select("id", count: .exact)
+                .eq("user_id", value: userId)
+                .eq("won", value: true)
+                .execute()
+
+            return response.count ?? 0
+        } catch {
+            return 0
+        }
+    }
+    
     //INSERT
     func insertDay(_ day: Day) async {
         do {

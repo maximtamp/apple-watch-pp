@@ -8,7 +8,7 @@
 import SwiftUI
 import Supabase
 
-struct ProfileInfo: View {
+struct FriendDetail: View {
     @Environment(AppData.self) private var appData
 
     var userId: UUID
@@ -33,6 +33,8 @@ struct ProfileInfo: View {
     @State private var lastSevenDays: [Day] = []
     @State private var lastSevenDaysTotalSteps: Int = 0
     @State private var lastSevenDaysTotalFuelUsed: Int = 0
+    
+    @State private var racesWon: Int = 0
     
     @State var isLoadingPage = false
     @State var isLoading = false
@@ -62,6 +64,7 @@ struct ProfileInfo: View {
         }
         
         lastSevenDays = await SupabaseService.shared.fetchLastSevenDays(userId: userId)
+        racesWon = await SupabaseService.shared.fetchWonRacesCount(userId: userId)
         
         localfriendsData = friendsData
     }
@@ -91,96 +94,97 @@ struct ProfileInfo: View {
         ScrollView{
             if !isLoadingPage {
                 VStack {
-                    HStack {
+                    VStack(spacing: 24) {
                         HStack {
-                            AvatarView(avatarURL: avatarURL, size: 64)
-                            
-                            Text(username ?? "Unknown")
-                            Spacer()
-                        }
-                                        
-                        HStack{
-                            ZStack {
-                                Image(systemName: "bolt.fill")
-                                    .font(.system(size: 20))
+                            HStack {
+                                AvatarView(avatarURL: avatarURL, size: 64)
+                                
+                                Text(username ?? "Unknown")
+                                Spacer()
                             }
-                            .frame(width: 32, height: 32)
-                            .background(Color.red.opacity(0.5))
-                            .cornerRadius(90)
-                            Text("\(fuel)")
+                                            
+                            HStack{
+                                ZStack {
+                                    Image(systemName: "bolt.fill")
+                                        .font(.system(size: 20))
+                                }
+                                .frame(width: 32, height: 32)
+                                .background(Color.red.opacity(0.5))
+                                .cornerRadius(90)
+                                Text("\(fuel)")
+                            }
+                        }
+                        
+                        VStack {
+                            FriendButton(state: friendState, isLoading: isLoading,
+                                         insert: {
+                                Task{
+                                    isLoading = true
+                                    defer { isLoading = false }
+                                    
+                                    let newFriend = Friend(
+                                        id: UUID(),
+                                        userId: appData.currentUserId,
+                                        friendId: userId,
+                                        isAccepted: false
+                                    )
+                                    await SupabaseService.shared.insertFriend(newFriend)
+                                    friendState = "pending"
+                                }
+                            },
+                                         delete: {
+                                showAlert = true
+                            },
+                                         accept: {
+                                Task {
+                                    isLoading = true
+                                    defer { isLoading = false }
+                                    
+                                    if let relation = friendsData.first(where: { $0.userId == userId && $0.friendId == appData.currentUserId }) {
+                                        
+                                        relation.isAccepted = true
+                                        await SupabaseService.shared.updateFriend(relation)
+                                        friendState = "remove"
+                                    }
+                                }
+                            },
+                                         deny: {
+                                Task {
+                                    isLoading = true
+                                    defer { isLoading = false }
+                                    
+                                    if let relation = friendsData.first(where: { $0.userId == userId && $0.friendId == appData.currentUserId }) {
+                                        
+                                        await SupabaseService.shared.deleteFriend(relation)
+                                        friendState = "add"
+                                    }
+                                }
+                            })
+                        }
+                        .frame(height: 24)
+                        .padding(.vertical)
+                        .alert("Watch out!", isPresented: $showAlert) {
+                            Button("Yes, Remove", role: .destructive){
+                                Task {
+                                    isLoading = true
+                                    defer { isLoading = false }
+                                    
+                                    if let relation = friendsData.first(where: { ($0.userId == userId && $0.friendId == appData.currentUserId) || ($0.userId == appData.currentUserId && $0.friendId == userId) }) {
+                                        
+                                        await SupabaseService.shared.deleteFriend(relation)
+                                        friendState = "add"
+                                    }
+                                }
+                            }
+                            Button("Cancel", role: .cancel){}
+                        } message: {
+                            Text("Are you sure you want to remove \(username ?? "this friend")")
                         }
                     }
-                    .frame(height: 64)
                     .padding()
                     .background(Color("PrimaryAppColor"))
                     .cornerRadius(12)
                     
-                    
-                    VStack {
-                        FriendButton(state: friendState, isLoading: isLoading,
-                                     insert: {
-                            Task{
-                                isLoading = true
-                                defer { isLoading = false }
-                                
-                                let newFriend = Friend(
-                                    id: UUID(),
-                                    userId: appData.currentUserId,
-                                    friendId: userId,
-                                    isAccepted: false
-                                )
-                                await SupabaseService.shared.insertFriend(newFriend)
-                                friendState = "pending"
-                            }
-                        },
-                                     delete: {
-                            showAlert = true
-                        },
-                                     accept: {
-                            Task {
-                                isLoading = true
-                                defer { isLoading = false }
-                                
-                                if let relation = friendsData.first(where: { $0.userId == userId && $0.friendId == appData.currentUserId }) {
-                                    
-                                    relation.isAccepted = true
-                                    await SupabaseService.shared.updateFriend(relation)
-                                    friendState = "remove"
-                                }
-                            }
-                        },
-                                     deny: {
-                            Task {
-                                isLoading = true
-                                defer { isLoading = false }
-                                
-                                if let relation = friendsData.first(where: { $0.userId == userId && $0.friendId == appData.currentUserId }) {
-                                    
-                                    await SupabaseService.shared.deleteFriend(relation)
-                                    friendState = "add"
-                                }
-                            }
-                        })
-                    }
-                    .frame(height: 24)
-                    .padding()
-                    .alert("Watch out!", isPresented: $showAlert) {
-                        Button("Yes, Remove", role: .destructive){
-                            Task {
-                                isLoading = true
-                                defer { isLoading = false }
-                                
-                                if let relation = friendsData.first(where: { ($0.userId == userId && $0.friendId == appData.currentUserId) || ($0.userId == appData.currentUserId && $0.friendId == userId) }) {
-                                    
-                                    await SupabaseService.shared.deleteFriend(relation)
-                                    friendState = "add"
-                                }
-                            }
-                        }
-                        Button("Cancel", role: .cancel){}
-                    } message: {
-                        Text("Are you sure you want to remove \(username ?? "this friend")")
-                    }
                     
                     HStack {
                         Spacer()
@@ -188,12 +192,21 @@ struct ProfileInfo: View {
                             Text("\(totalParts)")
                                 .font(.largeTitle)
                             Text("Total Parts")
+                                .font(.footnote)
                         }
                         Spacer()
                         VStack {
                             Text("\(questCompleted)")
                                 .font(.largeTitle)
                             Text("Quest Completed")
+                                .font(.footnote)
+                        }
+                        Spacer()
+                        VStack {
+                            Text("\(racesWon)")
+                                .font(.largeTitle)
+                            Text("Races Won")
+                                .font(.footnote)
                         }
                         Spacer()
                     }
@@ -205,8 +218,9 @@ struct ProfileInfo: View {
                     if (car != nil) {
                         HStack{
                             CarBuild(wheelName: wheelPart?.name ?? "", bodyName: bodyPart?.name ?? "")
-                            .frame(maxWidth: .infinity)
-                            .padding(.trailing, 20)
+                                .frame(maxWidth: .infinity, maxHeight: .infinity)
+                                .background(Color("BackgroundAppColor"))
+                                .cornerRadius(12)
                             
                             VStack {
                                 partView(bodyPart)
@@ -224,7 +238,9 @@ struct ProfileInfo: View {
                     
                     Spacer()
                 }
-                .padding(.top, 12)
+                .padding(.top, 8)
+                .padding(.horizontal)
+                .padding(.bottom)
             } else {
                 ProgressView()
             }
@@ -262,6 +278,6 @@ struct ProfileInfo: View {
         .background(part != nil
                     ? part!.getRarityColor(neededRarity: part!.rarity)
                     : Color.clear)
-        .cornerRadius(12)
+        .cornerRadius(8)
     }
 }
