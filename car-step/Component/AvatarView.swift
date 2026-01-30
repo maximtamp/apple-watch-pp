@@ -11,17 +11,18 @@ import Supabase
 class ImageCache {
     static let shared = ImageCache()
     private init() {}
-    
-    private var cache = NSCache<NSString, UIImage>()
-    
-    func image(forKey key: String) -> UIImage? {
-        cache.object(forKey: key as NSString)
+
+    private var cache = NSCache<NSString, NSData>()
+
+    func data(forKey key: String) -> Data? {
+        cache.object(forKey: key as NSString) as Data?
     }
-    
-    func setImage(_ image: UIImage, forKey key: String) {
-        cache.setObject(image, forKey: key as NSString)
+
+    func setData(_ data: Data, forKey key: String) {
+        cache.setObject(data as NSData, forKey: key as NSString)
     }
 }
+
 
 struct AvatarView: View {
     let avatarURL: String?
@@ -38,6 +39,8 @@ struct AvatarView: View {
                 avatarImage.image
                     .resizable()
                     .scaledToFill()
+                    .frame(width: size, height: size)
+                    .clipped()
             } else if isLoading {
                 ProgressView()
             }
@@ -45,36 +48,39 @@ struct AvatarView: View {
         .frame(width: size, height: size)
         .background(Color.black.opacity(0.2))
         .clipShape(Circle())
-        .task {
+        .task(id: avatarURL) {
             await loadImage()
         }
+
+
     }
     
+    @MainActor
     private func loadImage() async {
         guard avatarImage == nil, let avatarURL, !avatarURL.isEmpty else { return }
-        
-        if let cached = ImageCache.shared.image(forKey: avatarURL) {
-            avatarImage = AvatarImage(data: cached.pngData()!)
+
+        if let cachedData = ImageCache.shared.data(forKey: avatarURL) {
+            avatarImage = AvatarImage(data: cachedData)
             return
         }
-        
+
         let fileURL = getCachedFileURL(for: avatarURL)
-            if let data = try? Data(contentsOf: fileURL) {
-                avatarImage = AvatarImage(data: data)
-                return
-            }
-        
+        if let data = try? Data(contentsOf: fileURL) {
+            avatarImage = AvatarImage(data: data)
+            ImageCache.shared.setData(data, forKey: avatarURL)
+            return
+        }
+
         isLoading = true
         defer { isLoading = false }
-        
+
         do {
-            let data = try await supabase.storage.from("avatars").download(path: avatarURL)
-            let newAvatar = AvatarImage(data: data)
-            avatarImage = newAvatar
-            
-            if let uiImage = newAvatar?.image.asUIImage() {
-                ImageCache.shared.setImage(uiImage, forKey: avatarURL)
-            }
+            let data = try await supabase.storage
+                .from("avatars")
+                .download(path: avatarURL)
+
+            avatarImage = AvatarImage(data: data)
+            ImageCache.shared.setData(data, forKey: avatarURL)
         } catch {
             print("Avatar fail:", error)
         }
@@ -84,22 +90,6 @@ struct AvatarView: View {
         let cachesDirectory = FileManager.default.urls(for: .cachesDirectory, in: .userDomainMask).first!
         let fileName = key.replacingOccurrences(of: "/", with: "_")
         return cachesDirectory.appendingPathComponent(fileName)
-    }
-}
-
-extension Image {
-    func asUIImage() -> UIImage? {
-        let controller = UIHostingController(rootView: self)
-        let view = controller.view
-        
-        let targetSize = controller.view.intrinsicContentSize
-        view?.bounds = CGRect(origin: .zero, size: targetSize)
-        view?.backgroundColor = .clear
-        
-        let renderer = UIGraphicsImageRenderer(size: targetSize)
-        return renderer.image { _ in
-            view?.drawHierarchy(in: view!.bounds, afterScreenUpdates: true)
-        }
     }
 }
 
