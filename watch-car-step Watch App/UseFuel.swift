@@ -25,7 +25,8 @@ struct UseFuel: View {
     @State private var partProgress: Double = 0
     
     @State private var createdPartRarity: PartRarity = .common
-    
+    @State private var createdPartName: String = ""
+
     @State private var valuesToPickFrom: [Int] = []
 
     var body: some View {
@@ -51,6 +52,7 @@ struct UseFuel: View {
                         appData.updateTodayUsedFuel(today: today, newValue: today.usedFuel + amountOfFuelUse)
                         if partProgress == 1.0 {
                             createdPartRarity = part.rarity
+                            createdPartName = part.name
                             
                             useFuelState = "ShapeDone"
                             appData.finishedPart(part: part, context: context)
@@ -92,11 +94,14 @@ struct UseFuel: View {
                     Text("Part completed!")
                         .font(.title3)
                     VStack {
-                        
+                        Image("\(createdPartName.lowercased().replacingOccurrences(of: " ", with: "-"))-icon")
+                            .resizable()
+                            .scaledToFit()
+                            .padding(8)
                     }
                     .frame(width: 64, height: 64)
                     .background(part.getRarityColor(neededRarity: createdPartRarity))
-                    .cornerRadius(16)
+                    .cornerRadius(8)
                 }
                 Button("Close"){
                     dismiss()

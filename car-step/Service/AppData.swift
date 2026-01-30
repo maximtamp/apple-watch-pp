@@ -358,6 +358,7 @@ class AppData {
         
         if isTodaysDate(today.date) {
             today.totalSteps = manager.getTodaySteps()
+            WatchConnectivitySync.shared.sendToday(today)
             Task {
                 await SupabaseService.shared.updateDay(today)
             }
@@ -372,7 +373,7 @@ class AppData {
             )
             context.insert(newDay)
             self.today = newDay
-            
+            WatchConnectivitySync.shared.sendToday(newDay)
             Task {
                 await SupabaseService.shared.insertDay(newDay)
             }

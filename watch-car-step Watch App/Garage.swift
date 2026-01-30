@@ -27,6 +27,11 @@ struct Garage: View {
         if let car = appData.car {
             TabView {
                 VStack{
+                    HStack{
+                        Image(systemName: "door.garage.closed")
+                        Text("Garage")
+                        Spacer()
+                    }
                     if let bodyPart = parts.first(where: {$0.id == car.bodyId}), let wheelPart = parts.first(where: {$0.id == car.wheelId}) {
                         CarBuild(wheelName: wheelPart.name, bodyName: bodyPart.name)
                     } else {
@@ -42,39 +47,44 @@ struct Garage: View {
                                 Image(systemName: tab.icon)
                                 Text(tab.name)
                             }
-                            ForEach(
-                                parts
-                                    .filter {$0.type.displayName == tab.name && $0.partMade}
-                                    .sorted{partA, partB in
-                                        if partA.id == car.bodyId || partA.id == car.engineId || partA.id == car.wheelId {
-                                            return true
+                            LazyVGrid(columns: [GridItem(.flexible()), GridItem(.flexible())]){
+                                ForEach(
+                                    parts
+                                        .filter {$0.type.displayName == tab.name && $0.partMade}
+                                        .sorted{partA, partB in
+                                            if partA.id == car.bodyId || partA.id == car.engineId || partA.id == car.wheelId {
+                                                return true
+                                            }
+                                            if partB.id == car.bodyId || partB.id == car.engineId || partB.id == car.wheelId {
+                                                return false
+                                            }
+                                            
+                                            let rarityA = rarityOrder.firstIndex(of: partA.rarity.displayName) ?? 0
+                                            let rarityB = rarityOrder.firstIndex(of: partB.rarity.displayName) ?? 0
+                                            return rarityA > rarityB
                                         }
-                                        if partB.id == car.bodyId || partB.id == car.engineId || partB.id == car.wheelId {
-                                            return false
+                                ) { part in
+                                    
+                                    Button {
+                                        appData.updateCarPartId(car: car, partType: part.type, newID: part.id)
+                                    } label: {
+                                        VStack {
+                                            Image("\(part.name.lowercased().replacingOccurrences(of: " ", with: "-"))-icon")
+                                                .resizable()
+                                                .scaledToFit()
+                                                .padding(8)
                                         }
-                                        
-                                        let rarityA = rarityOrder.firstIndex(of: partA.rarity.displayName) ?? 0
-                                        let rarityB = rarityOrder.firstIndex(of: partB.rarity.displayName) ?? 0
-                                        return rarityA > rarityB
+                                        .frame(maxWidth: .infinity, maxHeight: .infinity)
+                                        .background(part.getRarityColor(neededRarity: part.rarity))
+                                        .aspectRatio(1, contentMode: .fill)
+                                        .cornerRadius(8)
+                                        .overlay(
+                                            RoundedRectangle(cornerRadius: 8)
+                                                .stroke(part.id == car.bodyId || part.id == car.engineId || part.id == car.wheelId ? Color.white : Color.clear, lineWidth: 4)
+                                        )
                                     }
-                            ) { part in
-                                
-                                Button {
-                                    appData.updateCarPartId(car: car, partType: part.type, newID: part.id)
-                                } label: {
-                                    VStack {
-                                        Text(part.name)
-                                            .foregroundColor(Color.black)
-                                    }
-                                    .frame(maxWidth: .infinity, minHeight: 40, maxHeight: 40)
-                                    .background(part.getRarityColor(neededRarity: part.rarity))
-                                    .cornerRadius(12)
-                                    .overlay(
-                                        RoundedRectangle(cornerRadius: 8)
-                                            .stroke(part.id == car.bodyId || part.id == car.engineId || part.id == car.wheelId ? Color.white : Color.clear, lineWidth: 4)
-                                    )
+                                    .buttonStyle(.plain)
                                 }
-                                .buttonStyle(.plain)
                             }
                         }
                     }

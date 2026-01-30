@@ -9,7 +9,7 @@ import SwiftUI
 
 struct Challenge: View {
     @State private var selectedTab: Int = 0
-    var tabs = ["Challanges", "Leaderboards"]
+    var tabs = ["Quests", "Leaderboards"]
     
     var body: some View {
         VStack{
@@ -24,7 +24,7 @@ struct Challenge: View {
             
             if selectedTab == 0 {
                 VStack{
-                    Text("Daily Challenges")
+                    Text("Daily Quests")
                         .font(.title)
                         .bold()
                     Quests()

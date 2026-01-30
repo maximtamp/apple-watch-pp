@@ -27,7 +27,7 @@ struct UseFuelPage: View {
                     NavigationLink("Use Fuel") {
                         UseFuel(fuel: fuel, part: part, today: today)
                     }
-                    .disabled(fuel.value > 0)
+                    .disabled(fuel.value <= 0)
                 }
                 .frame(maxWidth: .infinity, maxHeight: .infinity)
             }
