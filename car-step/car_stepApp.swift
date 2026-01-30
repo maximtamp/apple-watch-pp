@@ -15,6 +15,9 @@ struct car_stepApp: App {
     @AppStorage("isOnboarding") var isOnboarding: Bool = true
     @AppStorage("hasLaunchedBefore") var hasLaunchedBefore: Bool = false
     
+    @AppStorage("storedUsername") var storedUsername: String = ""
+    @AppStorage("storedAvatarURL") var storedAvatarURL: String = ""
+    
     let container: ModelContainer = {
         try! ModelContainer(for: Day.self, Part.self, Fuel.self, Car.self, Quest.self)
     }()
@@ -117,6 +120,14 @@ struct car_stepApp: App {
             if let profile = profiles.first {
                 let missing = profile.username == nil || profile.username!.isEmpty
                 needsUsername = missing
+                
+                if let username = profile.username {
+                    storedUsername = username
+                }
+                
+                if let avatar = profile.avatarURL {
+                    storedAvatarURL = avatar
+                }
             } else {
                 needsUsername = true
             }

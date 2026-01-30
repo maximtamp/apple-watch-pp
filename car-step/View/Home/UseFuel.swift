@@ -89,6 +89,16 @@ struct UseFuel: View {
         VStack{
             if useFuelState == .amountPicking {
                 HStack {
+                    HStack{
+                        Button {
+                            onClose()
+                        } label: {
+                            Image(systemName: "xmark")
+                        }
+                        .font(.title)
+                        .foregroundStyle(Color("SecondaryAppColor").opacity(0.5))
+                        Spacer()
+                    }
                     Spacer()
                     ZStack {
                         Image(systemName: "bolt.fill")

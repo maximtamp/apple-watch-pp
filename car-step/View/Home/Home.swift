@@ -80,8 +80,10 @@ struct Home: View {
                         }
                     }
                 }
+                
             }
             .padding()
+            .background(Color("BackgroundAppColor"))
             .onAppear {
                 appData.updateTodaySteps(context: context, manager: manager, today: today)
                 Task {

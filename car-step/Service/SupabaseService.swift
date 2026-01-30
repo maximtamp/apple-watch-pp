@@ -38,7 +38,6 @@ final class SupabaseService {
             let dtos = try decoder.decode([DayDTO].self, from: response.data)
             return dtos.map{Day(dto: $0)}
         } catch {
-            print("appel")
             return []
         }
     }

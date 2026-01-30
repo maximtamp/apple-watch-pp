@@ -1,5 +1,5 @@
 //
-//  ProfileInfo.swift
+//  FriendDetail.swift
 //  car-step
 //
 //  Created by Maxim Tampere on 24/01/2026.

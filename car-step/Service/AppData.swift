@@ -414,7 +414,6 @@ class AppData {
     
     func checkTodayQuests(context: ModelContext, quests: [Quest]) {
         let todayQuests = quests.filter { isTodaysDate($0.date) }
-        print(todayQuests)
         
         if todayQuests.count < 3 {
             setupQuests(context: context, quests: quests)
