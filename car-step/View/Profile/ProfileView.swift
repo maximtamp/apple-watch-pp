@@ -17,6 +17,7 @@ struct ProfileView: View {
     
     @AppStorage("storedUsername") var storedUsername: String = ""
     @AppStorage("storedAvatarURL") var storedAvatarURL: String = ""
+    @AppStorage("isOnboarding") var isOnboarding: Bool = true
 
     @Query private var days: [Day]
     @Query private var parts: [Part]
@@ -91,6 +92,7 @@ struct ProfileView: View {
                                         try? await supabase.auth.signOut()
                                         storedUsername = ""
                                         storedAvatarURL = ""
+                                        isOnboarding = true
                                         await appData.resetApp(context: context)
                                         WatchConnectivitySync.shared.sendLogOut()
                                     }

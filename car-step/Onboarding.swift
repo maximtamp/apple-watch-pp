@@ -94,7 +94,7 @@ struct Onboarding: View {
         }
         .tabViewStyle(PageTabViewStyle())
         .foregroundStyle(Color("SecondaryAppColor"))
-        .background(Color("PrimaryAppColor"))
+        .background(Color("BackgroundAppColor"))
         .onAppear {
             UIPageControl.appearance().currentPageIndicatorTintColor = UIColor(Color("SecondaryAppColor"))
             UIPageControl.appearance().pageIndicatorTintColor = UIColor(Color("SecondaryAppColor")).withAlphaComponent(0.4)

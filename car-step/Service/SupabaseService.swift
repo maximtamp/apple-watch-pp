@@ -254,6 +254,24 @@ final class SupabaseService {
         }
     }
     
+    func hasFriendRequestFrom(userId: UUID, currentUserId: UUID) async -> Friend? {
+        do {
+            let response = try await supabase
+                .from("friends")
+                .select()
+                .eq("user_id", value: userId)
+                .eq("friend_id", value: currentUserId)
+                .eq("is_accepted", value: false)
+                .limit(1)
+                .execute()
+
+            let dtos = try JSONDecoder().decode([FriendDTO].self, from: response.data)
+            return dtos.first.map{Friend(dto: $0)}
+        } catch {
+            return nil
+        }
+    }
+    
     func fetchCarParts(for userId: UUID) async -> (body: Part?, engine: Part?, wheel: Part?) {
         let cars = await fetchCars(userId: userId)
         guard let car = cars.first else {
@@ -562,7 +580,7 @@ final class SupabaseService {
                 .eq("user_id", value: car.userId.uuidString)
                 .execute()
         } catch {
-            print("Error inserting car:", error)
+            print("Error updating car:", error)
         }
     }
     
@@ -578,7 +596,7 @@ final class SupabaseService {
                 .eq("id", value: quest.id.uuidString)
                 .execute()
         } catch {
-            print("Error inserting quest:", error)
+            print("Error updating quest:", error)
         }
     }
     

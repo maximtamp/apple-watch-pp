@@ -53,7 +53,11 @@ struct Friends: View {
                                     FriendDetail(userId: profile.id, username: profile.username, avatarURL: profile.avatarURL, friendsData: friendsData)
                                 } label: {
                                     HStack{
-                                        Text(profile.username ?? "")
+                                        HStack (alignment: .center, spacing: 12){
+                                            AvatarView(avatarURL: profile.avatarURL, size: 40)
+                                            Text(profile.username ?? "")
+                                                .foregroundStyle(Color("SecondaryAppColor"))
+                                        }
                                         Spacer()
                                         
                                         Button {
@@ -143,8 +147,11 @@ struct Friends: View {
                                         FriendDetail(userId: profile.id, username: profile.username, avatarURL: profile.avatarURL, friendsData: friendsData)
                                     } label: {
                                         HStack {
-                                            Text(profile.username ?? "")
-                                                .foregroundStyle(Color("SecondaryAppColor"))
+                                            HStack (alignment: .center, spacing: 12){
+                                                AvatarView(avatarURL: profile.avatarURL, size: 40)
+                                                Text(profile.username ?? "")
+                                                    .foregroundStyle(Color("SecondaryAppColor"))
+                                            }
                                             Spacer()
                                             if !friends.contains( where: { $0.id == profile.id } ) {
                                                 if !friendsData.contains( where: { $0.friendId == profile.id || $0.userId == profile.id } ) {
@@ -153,13 +160,18 @@ struct Friends: View {
                                                             isLoading = true
                                                             defer { isLoading = false }
                                                             
-                                                            let newFriend = Friend(
-                                                                id: UUID(),
-                                                                userId: appData.currentUserId,
-                                                                friendId: profile.id,
-                                                                isAccepted: false
-                                                            )
-                                                            await SupabaseService.shared.insertFriend(newFriend)
+                                                            if let requestedFriend = await SupabaseService.shared.hasFriendRequestFrom(userId: profile.id, currentUserId: appData.currentUserId) {
+                                                                requestedFriend.isAccepted = true
+                                                                await SupabaseService.shared.updateFriend(requestedFriend)
+                                                            } else {
+                                                                let newFriend = Friend(
+                                                                    id: UUID(),
+                                                                    userId: appData.currentUserId,
+                                                                    friendId: profile.id,
+                                                                    isAccepted: false
+                                                                )
+                                                                await SupabaseService.shared.insertFriend(newFriend)
+                                                            }
                                                             
                                                             await prepFriends(userId: appData.currentUserId)
                                                         }
@@ -208,7 +220,8 @@ struct Friends: View {
                                     NavigationLink {
                                         FriendDetail(userId: profile.id, username: profile.username, avatarURL: profile.avatarURL, friendsData: friendsData)
                                     } label: {
-                                        HStack{
+                                        HStack (alignment: .center, spacing: 12){
+                                            AvatarView(avatarURL: profile.avatarURL, size: 40)
                                             Text(profile.username ?? "")
                                                 .foregroundStyle(Color("SecondaryAppColor"))
                                             Spacer()
@@ -246,8 +259,4 @@ struct Friends: View {
             }
         }
     }
-}
-
-#Preview {
-    Friends()
 }

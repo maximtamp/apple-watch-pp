@@ -122,14 +122,20 @@ struct FriendDetail: View {
                                     isLoading = true
                                     defer { isLoading = false }
                                     
-                                    let newFriend = Friend(
-                                        id: UUID(),
-                                        userId: appData.currentUserId,
-                                        friendId: userId,
-                                        isAccepted: false
-                                    )
-                                    await SupabaseService.shared.insertFriend(newFriend)
-                                    friendState = "pending"
+                                    if let requestedFriend = await SupabaseService.shared.hasFriendRequestFrom(userId: userId, currentUserId: appData.currentUserId) {
+                                        requestedFriend.isAccepted = true
+                                        await SupabaseService.shared.updateFriend(requestedFriend)
+                                        friendState = "remove"
+                                    } else {
+                                        let newFriend = Friend(
+                                            id: UUID(),
+                                            userId: appData.currentUserId,
+                                            friendId: userId,
+                                            isAccepted: false
+                                        )
+                                        await SupabaseService.shared.insertFriend(newFriend)
+                                        friendState = "pending"
+                                    }
                                 }
                             },
                                          delete: {
@@ -169,11 +175,17 @@ struct FriendDetail: View {
                                     isLoading = true
                                     defer { isLoading = false }
                                     
-                                    if let relation = friendsData.first(where: { ($0.userId == userId && $0.friendId == appData.currentUserId) || ($0.userId == appData.currentUserId && $0.friendId == userId) }) {
-                                        
+                                    let relationA = friendsData.first(where: { ($0.userId == userId && $0.friendId == appData.currentUserId) })
+                                    let relationB = friendsData.first(where: { ($0.userId == appData.currentUserId && $0.friendId == userId) })
+                                    
+                                    if let relation = relationA {
                                         await SupabaseService.shared.deleteFriend(relation)
-                                        friendState = "add"
                                     }
+                                    if let relation = relationB {
+                                        await SupabaseService.shared.deleteFriend(relation)
+                                    }
+                                    
+                                    friendState = "add"
                                 }
                             }
                             Button("Cancel", role: .cancel){}
@@ -185,29 +197,13 @@ struct FriendDetail: View {
                     .background(Color("PrimaryAppColor"))
                     .cornerRadius(12)
                     
-                    
                     HStack {
                         Spacer()
-                        VStack {
-                            Text("\(totalParts)")
-                                .font(.largeTitle)
-                            Text("Total Parts")
-                                .font(.footnote)
-                        }
+                        ProfileStatsItem(label: "Total Parts", value: totalParts)
                         Spacer()
-                        VStack {
-                            Text("\(questCompleted)")
-                                .font(.largeTitle)
-                            Text("Quest Completed")
-                                .font(.footnote)
-                        }
+                        ProfileStatsItem(label: "Quest Completed", value: questCompleted)
                         Spacer()
-                        VStack {
-                            Text("\(racesWon)")
-                                .font(.largeTitle)
-                            Text("Races Won")
-                                .font(.footnote)
-                        }
+                        ProfileStatsItem(label: "Races Won", value: racesWon)
                         Spacer()
                     }
                     .padding()
@@ -223,9 +219,9 @@ struct FriendDetail: View {
                                 .cornerRadius(12)
                             
                             VStack {
-                                partView(bodyPart)
-                                partView(enginePart)
-                                partView(wheelPart)
+                                ProfilePartView(part: bodyPart)
+                                ProfilePartView(part: enginePart)
+                                ProfilePartView(part: wheelPart)
                             }
                         }
                         .padding()
@@ -260,24 +256,5 @@ struct FriendDetail: View {
                 checkFriendState()
             }
         }
-    }
-    
-    func partView(_ part: Part?) -> some View {
-        ZStack {
-            if ((part?.name) != nil) {
-                Image("\(part?.name.lowercased().replacingOccurrences(of: " ", with: "-") ?? "")-icon")
-                    .resizable()
-                    .scaledToFit()
-                    .padding(8)
-            } else {
-                Text("")
-                    .foregroundStyle(Color.black)
-            }
-        }
-        .frame(width: 80, height: 80)
-        .background(part != nil
-                    ? part!.getRarityColor(neededRarity: part!.rarity)
-                    : Color.clear)
-        .cornerRadius(8)
     }
 }

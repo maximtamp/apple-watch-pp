@@ -121,108 +121,107 @@ class Part {
     
     @ViewBuilder
     func getPartShape(color: Color, neededPart: String, progress: Double, size: Int, lineWidth: Int) -> some View {
-        let sizeDivider = 300 / size
-        
+        let scale = CGFloat(size) / 300
         switch neededPart {
-
         // BODY
         case "Shell Rover":
             ShellRoverShape()
                 .trim(from: 0.0, to: progress)
                 .stroke(color.opacity(0.5), lineWidth: CGFloat(lineWidth))
-                .frame(maxWidth: CGFloat(300 / sizeDivider), maxHeight: CGFloat(182 / sizeDivider))
+                .frame(maxWidth: CGFloat(300 * scale), maxHeight: CGFloat(182 * scale))
 
         case "Wing Chassis":
             WingChassisShape()
                 .trim(from: 0.0, to: progress)
                 .stroke(color.opacity(0.5), lineWidth: CGFloat(lineWidth))
-                .frame(maxWidth: CGFloat(300 / sizeDivider), maxHeight: CGFloat(149 / sizeDivider))
+                .frame(maxWidth: CGFloat(300 * scale), maxHeight: CGFloat(149 * scale))
 
         case "Crest Shell":
             CrestShellShape()
                 .trim(from: 0.0, to: progress)
                 .stroke(color.opacity(0.5), lineWidth: CGFloat(lineWidth))
-                .frame(maxWidth: CGFloat(300 / sizeDivider), maxHeight: CGFloat(189 / sizeDivider))
+                .frame(maxWidth: CGFloat(300 * scale), maxHeight: CGFloat(189 * scale))
 
         case "Phoenix Carapace":
             PhoenixCarapaceShape()
                 .trim(from: 0.0, to: progress)
                 .stroke(color.opacity(0.5), lineWidth: CGFloat(lineWidth))
-                .frame(maxWidth: CGFloat(300 / sizeDivider), maxHeight: CGFloat(154 / sizeDivider))
+                .frame(maxWidth: CGFloat(300 * scale), maxHeight: CGFloat(154 * scale))
 
         case "Aura Frame":
             AuraFrameShape()
                 .trim(from: 0.0, to: progress)
                 .stroke(color.opacity(0.5), lineWidth: CGFloat(lineWidth))
-                .frame(maxWidth: CGFloat(300 / sizeDivider), maxHeight: CGFloat(151 / sizeDivider))
+                .frame(maxWidth: CGFloat(300 * scale), maxHeight: CGFloat(151 * scale))
 
         // ENGINE
         case "Engine V1":
             EngineV1Shape()
                 .trim(from: 0.0, to: progress)
                 .stroke(color.opacity(0.5), lineWidth: CGFloat(lineWidth))
-                .frame(maxWidth: CGFloat(300 / sizeDivider), maxHeight: CGFloat(206 / sizeDivider))
+                .frame(maxWidth: CGFloat(300 * scale), maxHeight: CGFloat(206 * scale))
 
         case "Bolt Core":
             BoltCoreShape()
                 .trim(from: 0.0, to: progress)
                 .stroke(color.opacity(0.5), lineWidth: CGFloat(lineWidth))
-                .frame(maxWidth: CGFloat(300 / sizeDivider), maxHeight: CGFloat(242 / sizeDivider))
+                .frame(maxWidth: CGFloat(300 * scale), maxHeight: CGFloat(242 * scale))
 
         case "Gear V8":
             GearV8Shape()
                 .trim(from: 0.0, to: progress)
                 .stroke(color.opacity(0.5), lineWidth: CGFloat(lineWidth))
-                .frame(maxWidth: CGFloat(300 / sizeDivider), maxHeight: CGFloat(204 / sizeDivider))
+                .frame(maxWidth: CGFloat(300 * scale), maxHeight: CGFloat(204 * scale))
 
         case "Flare Pulse Unit":
             FlarePulseUnitShape()
                 .trim(from: 0.0, to: progress)
                 .stroke(color.opacity(0.5), lineWidth: CGFloat(lineWidth))
-                .frame(maxWidth: CGFloat(300 / sizeDivider), maxHeight: CGFloat(156 / sizeDivider))
+                .frame(maxWidth: CGFloat(300 * scale), maxHeight: CGFloat(156 * scale))
 
         case "Reactor":
             ReactorShape()
                 .trim(from: 0.0, to: progress)
                 .stroke(color.opacity(0.5), lineWidth: CGFloat(lineWidth))
-                .frame(maxWidth: CGFloat(300 / sizeDivider), maxHeight: CGFloat(152 / sizeDivider))
+                .frame(maxWidth: CGFloat(300 * scale), maxHeight: CGFloat(152 * scale))
 
         // WHEEL
         case "Ring Hoops":
             RingHoopsShape()
                 .trim(from: 0.0, to: progress)
                 .stroke(color.opacity(0.5), lineWidth: CGFloat(lineWidth))
-                .frame(maxWidth: CGFloat(300 / sizeDivider), maxHeight: CGFloat(300 / sizeDivider))
+                .frame(maxWidth: CGFloat(300 * scale), maxHeight: CGFloat(300 * scale))
 
         case "Spoke Treads":
             SpokeTreadsShape()
                 .trim(from: 0.0, to: progress)
                 .stroke(color.opacity(0.5), lineWidth: CGFloat(lineWidth))
-                .frame(maxWidth: CGFloat(300 / sizeDivider), maxHeight: CGFloat(300 / sizeDivider))
+                .frame(maxWidth: CGFloat(300 * scale), maxHeight: CGFloat(300 * scale))
 
         case "Bolt Spinners":
             BoltSpinnersShape()
                 .trim(from: 0.0, to: progress)
                 .stroke(color.opacity(0.5), lineWidth: CGFloat(lineWidth))
-                .frame(maxWidth: CGFloat(300 / sizeDivider), maxHeight: CGFloat(300 / sizeDivider))
+                .frame(maxWidth: CGFloat(300 * scale), maxHeight: CGFloat(300 * scale))
 
         case "Vortex Rollers":
             VortexRollersShape()
                 .trim(from: 0.0, to: progress)
                 .stroke(color.opacity(0.5), lineWidth: CGFloat(lineWidth))
-                .frame(maxWidth: CGFloat(300 / sizeDivider), maxHeight: CGFloat(300 / sizeDivider))
+                .frame(maxWidth: CGFloat(300 * scale), maxHeight: CGFloat(300 * scale))
 
         case "Nebula Glidewheels":
             NebulaGlidewheelsShape()
                 .trim(from: 0.0, to: progress)
                 .stroke(color.opacity(0.5), lineWidth: CGFloat(lineWidth))
-                .frame(maxWidth: CGFloat(300 / sizeDivider), maxHeight: CGFloat(300 / sizeDivider))
+                .frame(maxWidth: CGFloat(300 * scale), maxHeight: CGFloat(300 * scale))
 
         default:
             PhoenixCarapaceShape()
                 .trim(from: 0.0, to: progress)
                 .stroke(color.opacity(0.5), lineWidth: CGFloat(lineWidth))
-                .frame(maxWidth: CGFloat(300 / sizeDivider), maxHeight: CGFloat(154 / sizeDivider))
+                .frame(maxWidth: 300 * scale, maxHeight: 154 * scale)
+                .border(Color.yellow)
         }
     }
 

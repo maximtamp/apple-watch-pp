@@ -30,42 +30,11 @@ struct ContentView: View {
                 if !isLoading {
                     VStack{
                         HStack {
-                            HStack{
-                                ZStack {
-                                    Image(systemName: "shoeprints.fill")
-                                        .font(.system(size: 20))
-                                }
-                                .frame(width: 32, height: 32)
-                                .background(Color.blue.opacity(0.5))
-                                .cornerRadius(90)
-                                Text("\(appData.today?.totalSteps ?? 0)")
-                            }
-
+                            TopBarItem(icon: "shoeprints.fill", color: Color.blue, value: appData.today?.totalSteps ?? 0)
                             Spacer()
-                            
-                            HStack{
-                                ZStack {
-                                    Image(systemName: "hand.point.up.left.fill")
-                                        .font(.system(size: 20))
-                                }
-                                .frame(width: 32, height: 32)
-                                .background(Color.yellow.opacity(0.5))
-                                .cornerRadius(90)
-                                Text("\((appData.today?.totalSteps ?? 0) - (appData.today?.claimedSteps ?? 0))")
-                            }
-                            
+                            TopBarItem(icon: "hand.point.up.left.fill", color: Color.yellow, value: (appData.today?.totalSteps ?? 0) - (appData.today?.claimedSteps ?? 0))
                             Spacer()
-                            
-                            HStack{
-                                ZStack {
-                                    Image(systemName: "bolt.fill")
-                                        .font(.system(size: 20))
-                                }
-                                .frame(width: 32, height: 32)
-                                .background(Color.red.opacity(0.5))
-                                .cornerRadius(90)
-                                Text("\(appData.fuel?.value ?? 0)")
-                            }
+                            TopBarItem(icon: "bolt.fill", color: Color.red, value: appData.fuel?.value ?? 0)
                         }
                         .padding(.horizontal)
                         TabView {
@@ -86,6 +55,7 @@ struct ContentView: View {
                             }
                         }
                     }
+                    .background(Color("SecondaryAppColor").opacity(0.025))
                 } else {
                     ProgressView()
                 }

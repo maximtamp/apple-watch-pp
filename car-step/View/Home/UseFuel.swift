@@ -35,7 +35,6 @@ struct UseFuel: View {
     @State private var runEnd: Bool = false
     @State private var animatedFuelRemaining: Int = 0
     
-    
     func handleStart() {
         runRunning = true
         
@@ -134,7 +133,6 @@ struct UseFuel: View {
             }
             Spacer()
         }
-        .aspectRatio(1, contentMode: .fit)
         .frame(width: 250, height: 250)
         .padding(24)
         .background( useFuelState == .shapeDone && (createdPart != nil) ? createdPart!.getRarityColor(neededRarity: createdPart!.rarity) : part.getRarityColor(neededRarity: part.rarity))

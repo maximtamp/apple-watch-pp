@@ -70,9 +70,9 @@ struct EditProfile: View {
                     .textContentType(.username)
                     .textInputAutocapitalization(.never)
                     .autocorrectionDisabled()
-                    .background(Color.white)
+                    .background(Color("PrimaryAppColor"))
                     .padding(12)
-                    .background(Color.white)
+                    .background(Color("PrimaryAppColor"))
                     .cornerRadius(12)
                     .onChange(of: username) {
                         errorMessage = ""

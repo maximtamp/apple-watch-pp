@@ -11,12 +11,9 @@ struct HomeShapeView: View {
     let part: Part
     var body: some View {
         VStack {
-            Spacer()
             part.getPartShape(color: Color.black, neededPart: part.name, progress: part.progressPrecent, size: 225, lineWidth: 5)
-            Spacer()
         }
         .frame(width: 225, height: 225)
-        .aspectRatio(1, contentMode: .fit)
         .padding(24)
         .background(part.getRarityColor(neededRarity: part.rarity))
         .cornerRadius(32)
