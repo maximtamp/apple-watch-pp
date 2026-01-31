@@ -86,6 +86,7 @@
 		1B0164B22F1A8FBC00BD09BD /* Exceptions for "car-step" folder in "watch-car-step Watch App" target */ = {
 			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
 			membershipExceptions = (
+				Component/CarBuild.swift,
 				Data/Car.swift,
 				Data/Day.swift,
 				Data/Friend.swift,

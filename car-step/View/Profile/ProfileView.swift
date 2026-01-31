@@ -14,6 +14,10 @@ import _SwiftData_SwiftUI
 struct ProfileView: View {
     @Environment(AppData.self) private var appData
     @Environment(\.modelContext) private var context
+    
+    @AppStorage("storedUsername") var storedUsername: String = ""
+    @AppStorage("storedAvatarURL") var storedAvatarURL: String = ""
+    @AppStorage("isOnboarding") var isOnboarding: Bool = true
 
     @Query private var days: [Day]
     @Query private var parts: [Part]
@@ -27,90 +31,91 @@ struct ProfileView: View {
     @State var isLoading = false
     @State private var isEditing = false
 
-    @State var imageSelection: PhotosPickerItem?
-    @State var avatarImage: AvatarImage?
-
     var body: some View {
         NavigationStack {
             VStack {
-                ScrollView{
-                    VStack(spacing: 20) {
-                        Group {
-                            if let avatarImage {
-                                avatarImage.image.resizable()
-                            } else {
-                                Color.black.opacity(0.2)
+                if !isLoading {
+                    ScrollView{
+                        VStack(spacing: 20) {
+                            Group {
+                                AvatarView(
+                                    avatarURL: storedAvatarURL,
+                                    size: 160
+                                )
+                            }
+                            .scaledToFill()
+                            .frame(width: 160, height: 160)
+                            .clipShape(Circle())
+                            Text(storedUsername)
+                                .font(.headline)
+                            Spacer()
+                        }
+                        .frame(maxWidth: .infinity)
+                        
+                        HStack {
+                            Spacer()
+                            VStack {
+                                Text("\(totalParts)")
+                                    .font(.largeTitle)
+                                Text("Total Parts")
+                            }
+                            Spacer()
+                            VStack {
+                                Text("\(questCompleted)")
+                                    .font(.largeTitle)
+                                Text("Quest Completed")
+                            }
+                            Spacer()
+                        }
+                        .padding()
+                        .frame(maxWidth: .infinity)
+                        .background(Color("PrimaryAppColor"))
+                        .cornerRadius(12)
+                        
+                        SevenDaysGraphic(days: days)
+                        
+                        Spacer()
+                    }
+                    .toolbar(content: {
+                        ToolbarItem {
+                            Menu("Actions", systemImage: "ellipsis") {
+                                Button("Edit Profile", systemImage: "pencil") {
+                                    isEditing = true
+                                }
+                                Button("Sync Watch", systemImage: "applewatch.radiowaves.left.and.right") {
+                                    if let car = appData.car, let fuel = appData.fuel {
+                                        WatchConnectivitySync.shared.sendSetup(days: days, parts: parts, fuel: fuel, car: car)
+                                    }
+                                }
+                                Button("Sign out", systemImage: "iphone.and.arrow.right.outward", role: .destructive) {
+                                    Task {
+                                        try? await supabase.auth.signOut()
+                                        storedUsername = ""
+                                        storedAvatarURL = ""
+                                        isOnboarding = true
+                                        await appData.resetApp(context: context)
+                                        WatchConnectivitySync.shared.sendLogOut()
+                                    }
+                                }
+                                .foregroundStyle(Color.red)
                             }
                         }
-                        .scaledToFill()
-                        .frame(width: 160, height: 160)
-                        .clipShape(Circle())
-                        Text(username)
-                            .font(.headline)
-                        Spacer()
-                    }
-                    .frame(maxWidth: .infinity)
-                    
-                    HStack {
-                        Spacer()
-                        VStack {
-                            Text("\(totalParts)")
-                                .font(.largeTitle)
-                            Text("Total Parts")
-                        }
-                        Spacer()
-                        VStack {
-                            Text("\(questCompleted)")
-                                .font(.largeTitle)
-                            Text("Quest Completed")
-                        }
-                        Spacer()
-                    }
-                    .padding()
-                    .frame(maxWidth: .infinity)
-                    .background(Color("PrimaryAppColor"))
-                    .cornerRadius(12)
-                    
-                    SevenDaysGraphic(days: days)
-                    
-                    Spacer()
+                    })
+                } else {
+                    ProgressView()
                 }
-                .toolbar(content: {
-                    ToolbarItem {
-                        Menu("Actions", systemImage: "ellipsis") {
-                            Button("Edit Profile", systemImage: "pencil") {
-                                isEditing = true
-                            }
-                            Button("Sync Watch", systemImage: "applewatch.radiowaves.left.and.right") {
-                                if let car = appData.car, let fuel = appData.fuel {
-                                    WatchConnectivitySync.shared.sendSetup(days: days, parts: parts, fuel: fuel, car: car)
-                                }
-                            }
-                            Button("Sign out", systemImage: "iphone.and.arrow.right.outward", role: .destructive) {
-                                Task {
-                                    try? await supabase.auth.signOut()
-                                    await appData.resetApp(context: context)
-                                }
-                                WatchConnectivitySync.shared.sendLogOut()
-                            }
-                            .foregroundStyle(Color.red)
-                        }
-                    }
-                })
             }
+            .padding(.horizontal)
             .frame(maxWidth: .infinity, maxHeight: .infinity)
             .background(Color("BackgroundAppColor"))
-            .onChange(of: imageSelection) { _, newValue in
-                guard let newValue else { return }
-                loadTransferable(from: newValue)
-            }
         }
-        .task {
-            await getInitialProfile()
+        .refreshable {
+            Task {
+                await getInitialProfile()
+            }
         }
         .onAppear {
             questCompleted = quests.filter { $0.claimed }.count
-                            
             totalParts = parts.filter { $0.partMade }.count
         }
         .popover(isPresented: $isEditing) {
@@ -123,7 +128,6 @@ struct ProfileView: View {
                 pageTitle: "Edit Profile",
                 buttonLabel: "Save Changes",
                 username: username,
-                avatarImage: avatarImage,
             )
         }
     }
@@ -143,29 +147,11 @@ struct ProfileView: View {
             
             let profile = Profile(dto: profileDTO)
             
-            username = profile.username ?? ""
-
-            if let avatarURL = profile.avatarURL, !avatarURL.isEmpty {
-                try await downloadImage(path: avatarURL)
-            }
+            storedUsername = profile.username ?? ""
+            storedAvatarURL = profile.avatarURL ?? ""
 
         } catch {
             debugPrint(error)
         }
-    }
-
-    private func loadTransferable(from imageSelection: PhotosPickerItem) {
-        Task {
-            do {
-                avatarImage = try await imageSelection.loadTransferable(type: AvatarImage.self)
-            } catch {
-                debugPrint(error)
-            }
-        }
-    }
-
-    private func downloadImage(path: String) async throws {
-        let data = try await supabase.storage.from("avatars").download(path: path)
-        avatarImage = AvatarImage(data: data)
     }
 }

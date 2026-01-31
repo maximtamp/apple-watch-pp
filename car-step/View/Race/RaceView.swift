@@ -36,6 +36,7 @@ struct RaceView: View {
     @State private var noValidOpponents: [Profile] = []
     
     @State private var username: String = ""
+    @State private var avatarURL: String = ""
     @State private var userBodyName: String = ""
     @State private var userEngineName: String = ""
     @State private var userWheelName: String = ""
@@ -50,19 +51,26 @@ struct RaceView: View {
     @State private var errorMessage: String = ""
     
     @State private var runVsAnimation: Bool = false
+    @State private var runVsAvatarAnimation: Bool = false
+    
     @State private var runRaceFadeInAnimation: Bool = false
     @State private var counDownNumber: Int = 3
     
     @State private var runEndAnimation: Bool = false
+    @State private var runEndAvatarAnimation: Bool = false
     
     func startVsAnimation() {
         runVsAnimation = true
         
-        DispatchQueue.main.asyncAfter(deadline: .now() + 2.0) {
-         runVsAnimation = false
+        DispatchQueue.main.asyncAfter(deadline: .now() + 0.75) {
+            runVsAvatarAnimation = true
+            
+            DispatchQueue.main.asyncAfter(deadline: .now() + 2.0) {
+             runVsAnimation = false
 
-            DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
-                raceState = .race
+                DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
+                    raceState = .race
+                }
             }
         }
     }
@@ -116,8 +124,8 @@ struct RaceView: View {
         guard
             let car = appData.car,
             let userBody = parts.first(where: {$0.id == car.bodyId}),
-            let userEngine = parts.first(where: {$0.id == car.bodyId}),
-            let userWheel = parts.first(where: {$0.id == car.bodyId})
+            let userEngine = parts.first(where: {$0.id == car.engineId}),
+            let userWheel = parts.first(where: {$0.id == car.wheelId})
         else {
             errorMessage = "You don't have a car yet. Restart the app."
             return
@@ -131,6 +139,7 @@ struct RaceView: View {
         
         let user = await SupabaseService.shared.fetchProfile(userId: appData.currentUserId)
         username = user?.username ?? ""
+        avatarURL = user?.avatarURL ?? ""
                 
         if userSpeed > opponentSpeed {
             hasWon = true
@@ -175,6 +184,17 @@ struct RaceView: View {
                 switch raceState {
                 case .selectOpponent:
                     VStack {
+                        HStack{
+                            Button {
+                                onClose()
+                            } label: {
+                                Image(systemName: "xmark")
+                            }
+                            .font(.title)
+                            .foregroundStyle(Color("SecondaryAppColor").opacity(0.5))
+                            Spacer()
+                        }
+                        .padding(12)
                         Text("Select your opponent")
                             .font(.title)
                             .padding(.top, 160)
@@ -295,6 +315,11 @@ struct RaceView: View {
                                     .fill(Color.black.opacity(0.1))
                                     .frame(width: 160, height: 160)
                                     .cornerRadius(100)
+                                VStack {
+                                    CarBuild(wheelName: userWheelName, bodyName: userBodyName)
+                                }
+                                .frame(width: 160, height: 160)
+                                .cornerRadius(100)
                             }
                             .padding()
                             
@@ -303,11 +328,15 @@ struct RaceView: View {
                                     .fill(Color.blue)
                                     .frame(width: 80, height: 80)
                                     .cornerRadius(100)
-                                Rectangle()
-                                    .fill(Color.black.opacity(0.1))
-                                    .frame(width: 60, height: 60)
-                                    .cornerRadius(100)
+                                AvatarView(
+                                    avatarURL: avatarURL,
+                                    size: 60
+                                )
                             }
+                            .opacity(runVsAvatarAnimation ? 1 : 0)
+                            .scaleEffect(runVsAvatarAnimation ? 1 : 0.6)
+                            .rotationEffect(.degrees(runVsAvatarAnimation ? 0 : -180))
+                            .animation(.snappy(duration: 1.0), value: runVsAvatarAnimation)
                         }
                         .offset(
                             x: runVsAnimation ? 0 : 300,
@@ -318,7 +347,7 @@ struct RaceView: View {
                         Text("VS")
                             .font(.system(size: 64, weight: .bold))
                             .opacity(runVsAnimation ? 1.0 : 0.0)
-                            .animation(.snappy(duration: 1.0), value: runVsAnimation)
+                            .animation(.snappy(duration: 0.5), value: runVsAnimation)
                         
                         ZStack(alignment: .topLeading){
                             ZStack {
@@ -330,6 +359,11 @@ struct RaceView: View {
                                     .fill(Color.black.opacity(0.1))
                                     .frame(width: 160, height: 160)
                                     .cornerRadius(100)
+                                VStack {
+                                    CarBuild(wheelName: opponentWheelName, bodyName: opponentBodyName)
+                                }
+                                .frame(width: 160, height: 160)
+                                .cornerRadius(100)
                             }
                             .padding()
                             
@@ -338,11 +372,15 @@ struct RaceView: View {
                                     .fill(Color.red)
                                     .frame(width: 80, height: 80)
                                     .cornerRadius(100)
-                                Rectangle()
-                                    .fill(Color.black.opacity(0.1))
-                                    .frame(width: 60, height: 60)
-                                    .cornerRadius(100)
+                                AvatarView(
+                                    avatarURL: opponent.avatarURL,
+                                    size: 60
+                                )
                             }
+                            .opacity(runVsAvatarAnimation ? 1 : 0)
+                            .scaleEffect(runVsAvatarAnimation ? 1 : 0.6)
+                            .rotationEffect(.degrees(runVsAvatarAnimation ? 0 : 180))
+                            .animation(.snappy(duration: 1.0), value: runVsAvatarAnimation)
                         }
                         .offset(
                             x: runVsAnimation ? 0 : -300,
@@ -371,10 +409,10 @@ struct RaceView: View {
                                                 .fill(Color.blue)
                                                 .frame(width: 60, height: 60)
                                                 .cornerRadius(100)
-                                            Rectangle()
-                                                .fill(Color.black.opacity(0.1))
-                                                .frame(width: 40, height: 40)
-                                                .cornerRadius(100)
+                                            AvatarView(
+                                                avatarURL: counDownNumber == 0 || counDownNumber == 3 ? avatarURL : nil,
+                                                size: 45
+                                            )
                                         }
                                     }
                                     
@@ -399,10 +437,11 @@ struct RaceView: View {
                                                 .fill(Color.red)
                                                 .frame(width: 60, height: 60)
                                                 .cornerRadius(100)
-                                            Rectangle()
-                                                .fill(Color.black.opacity(0.1))
-                                                .frame(width: 40, height: 40)
-                                                .cornerRadius(100)
+                                            AvatarView(
+                                                avatarURL: counDownNumber == 0 || counDownNumber == 3 ? opponent.avatarURL : nil,
+                                                size: 45
+                                            )
+
                                         }
                                     }
                                     
@@ -421,11 +460,11 @@ struct RaceView: View {
                                 Image("race-track")
                                 
                                 if counDownNumber != 0 {
-                                    RaceCar(color: .blue, duration: userDuration, run: 0.0)
-                                    RaceCar(color: .red, duration: opponentDuration, run: 0.0)
+                                    RaceCar(color: .blue, duration: userDuration, run: 0.0, wheelName: userWheelName, bodyName: userBodyName)
+                                    RaceCar(color: .red, duration: opponentDuration, run: 0.0, wheelName: opponentWheelName, bodyName: opponentBodyName)
                                 } else {
-                                    RaceCar(color: .blue, duration: userDuration, run: 1.0)
-                                    RaceCar(color: .red, duration: opponentDuration, run: 1.0)
+                                    RaceCar(color: .blue, duration: userDuration, run: 1.0, wheelName: userWheelName, bodyName: userBodyName)
+                                    RaceCar(color: .red, duration: opponentDuration, run: 1.0, wheelName: opponentWheelName, bodyName: opponentBodyName)
                                 }
                             }
                         }
@@ -480,11 +519,15 @@ struct RaceView: View {
                                         .fill(hasWon ? Color.blue : Color.red)
                                         .frame(width: 100, height: 100)
                                         .cornerRadius(100)
-                                    Rectangle()
-                                        .fill(Color.black.opacity(0.1))
-                                        .frame(width: 80, height: 80)
-                                        .cornerRadius(100)
+                                    AvatarView(
+                                        avatarURL: avatarURL,
+                                        size: 80
+                                    )
                                 }
+                                .opacity(runEndAnimation ? 1 : 0)
+                                .scaleEffect(runEndAnimation ? 1 : 0.6)
+                                .rotationEffect(.degrees(runEndAnimation ? 0 : -180))
+                                .animation(.snappy(duration: 1.0), value: runEndAnimation)
                                 ZStack {
                                     Rectangle()
                                         .fill(Color.yellow)
@@ -506,11 +549,15 @@ struct RaceView: View {
                                         .fill(hasWon ? Color.red : Color.blue)
                                         .frame(width: 100, height: 100)
                                         .cornerRadius(100)
-                                    Rectangle()
-                                        .fill(Color.black.opacity(0.1))
-                                        .frame(width: 80, height: 80)
-                                        .cornerRadius(100)
+                                    AvatarView(
+                                        avatarURL: opponent.avatarURL,
+                                        size: 80
+                                    )
                                 }
+                                .opacity(runEndAnimation ? 1 : 0)
+                                .scaleEffect(runEndAnimation ? 1 : 0.6)
+                                .rotationEffect(.degrees(runEndAnimation ? 0 : 180))
+                                .animation(.snappy(duration: 1.0), value: runEndAnimation)
                                 ZStack {
                                     Rectangle()
                                         .fill(Color.gray.opacity(0.7))
@@ -553,6 +600,9 @@ struct RaceView: View {
                     .padding(.vertical, 30)
                     .onAppear {
                         runEndAnimation = true
+                        DispatchQueue.main.asyncAfter(deadline: .now() + 1.0) {
+                            runEndAvatarAnimation = true
+                        }
                     }
                 }
             } else {

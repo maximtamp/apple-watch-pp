@@ -38,7 +38,6 @@ final class SupabaseService {
             let dtos = try decoder.decode([DayDTO].self, from: response.data)
             return dtos.map{Day(dto: $0)}
         } catch {
-            print("appel")
             return []
         }
     }
@@ -60,7 +59,26 @@ final class SupabaseService {
             let dtos = try decoder.decode([DayDTO].self, from: response.data)
             return dtos.map{Day(dto: $0)}
         } catch {
-            print("appel")
+            return []
+        }
+    }
+    
+    func fetchAllLastSevenDays() async -> [Day] {
+        do {
+            let response = try await supabase
+                .from("days")
+                .select()
+                .gte("date", value: Date().addingTimeInterval(-7 * 24 * 60 * 60))
+                .execute()
+            
+            let decoder = JSONDecoder()
+            let formatter = DateFormatter()
+            formatter.dateFormat = "yyyy-MM-dd"
+            decoder.dateDecodingStrategy = .formatted(formatter)
+
+            let dtos = try decoder.decode([DayDTO].self, from: response.data)
+            return dtos.map{Day(dto: $0)}
+        } catch {
             return []
         }
     }
@@ -81,6 +99,26 @@ final class SupabaseService {
             let dtos = try decoder.decode([PartDTO].self, from: response.data)
             return dtos.map { Part(dto: $0) }
 
+        } catch {
+            return []
+        }
+    }
+    
+    func fetchAllLastSevenParts() async -> [Part] {
+        do {
+            let response = try await supabase
+                .from("parts")
+                .select()
+                .gte("creation_date", value: Date().addingTimeInterval(-7 * 24 * 60 * 60))
+                .execute()
+
+            let decoder = JSONDecoder()
+            let formatter = DateFormatter()
+            formatter.dateFormat = "yyyy-MM-dd'T'HH:mm:ss"
+            decoder.dateDecodingStrategy = .formatted(formatter)
+
+            let dtos = try decoder.decode([PartDTO].self, from: response.data)
+            return dtos.map{Part(dto: $0)}
         } catch {
             return []
         }
@@ -122,6 +160,26 @@ final class SupabaseService {
                 .from("quests")
                 .select()
                 .eq("user_id", value: userId)
+                .execute()
+            
+            let decoder = JSONDecoder()
+            let formatter = DateFormatter()
+            formatter.dateFormat = "yyyy-MM-dd"
+            decoder.dateDecodingStrategy = .formatted(formatter)
+
+            let dtos = try decoder.decode([QuestDTO].self, from: response.data)
+            return dtos.map{Quest(dto: $0)}
+        } catch {
+            return []
+        }
+    }
+    
+    func fetchAllLastSevenQuests() async -> [Quest] {
+        do {
+            let response = try await supabase
+                .from("quests")
+                .select()
+                .gte("date", value: Date().addingTimeInterval(-7 * 24 * 60 * 60))
                 .execute()
             
             let decoder = JSONDecoder()
@@ -193,6 +251,24 @@ final class SupabaseService {
             return dtos.map{Friend(dto: $0)}
         } catch {
             return []
+        }
+    }
+    
+    func hasFriendRequestFrom(userId: UUID, currentUserId: UUID) async -> Friend? {
+        do {
+            let response = try await supabase
+                .from("friends")
+                .select()
+                .eq("user_id", value: userId)
+                .eq("friend_id", value: currentUserId)
+                .eq("is_accepted", value: false)
+                .limit(1)
+                .execute()
+
+            let dtos = try JSONDecoder().decode([FriendDTO].self, from: response.data)
+            return dtos.first.map{Friend(dto: $0)}
+        } catch {
+            return nil
         }
     }
     
@@ -273,6 +349,21 @@ final class SupabaseService {
         } catch {
             print("Error fetching races today:", error)
             return []
+        }
+    }
+    
+    func fetchWonRacesCount(userId: UUID) async -> Int {
+        do {
+            let response = try await supabase
+                .from("races")
+                .select("id", count: .exact)
+                .eq("user_id", value: userId)
+                .eq("won", value: true)
+                .execute()
+
+            return response.count ?? 0
+        } catch {
+            return 0
         }
     }
     
@@ -489,7 +580,7 @@ final class SupabaseService {
                 .eq("user_id", value: car.userId.uuidString)
                 .execute()
         } catch {
-            print("Error inserting car:", error)
+            print("Error updating car:", error)
         }
     }
     
@@ -505,7 +596,7 @@ final class SupabaseService {
                 .eq("id", value: quest.id.uuidString)
                 .execute()
         } catch {
-            print("Error inserting quest:", error)
+            print("Error updating quest:", error)
         }
     }
     

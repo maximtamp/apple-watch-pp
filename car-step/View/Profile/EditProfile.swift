@@ -11,13 +11,17 @@ import Supabase
 import SwiftUI
 
 struct EditProfile: View {
+    @AppStorage("storedUsername") var storedUsername: String = ""
+    @AppStorage("storedAvatarURL") var storedAvatarURL: String = ""
+    
     @Environment(\.dismiss) private var dismiss
+    
     let onSave: () -> Void?
     let pageTitle: String
     let buttonLabel: String
     
     @State var username: String
-    @State var avatarImage: AvatarImage?
+    @State private var avatarImage: AvatarImage?
 
     @State var isLoading = false
     @State var imageSelection: PhotosPickerItem?
@@ -33,8 +37,15 @@ struct EditProfile: View {
                 Group {
                     if let avatarImage {
                         avatarImage.image.resizable()
+                    } else if !storedAvatarURL.isEmpty {
+                        AvatarView(avatarURL: storedAvatarURL, size: 160)
                     } else {
-                        Color.black.opacity(0.2)
+                        Color.gray
+                        Image(systemName: "person.fill")
+                            .resizable()
+                            .scaledToFit()
+                            .frame(width: 80, height: 80)
+                            .foregroundStyle(Color.black.opacity(0.5))
                     }
                 }
                 .scaledToFill()
@@ -59,9 +70,9 @@ struct EditProfile: View {
                     .textContentType(.username)
                     .textInputAutocapitalization(.never)
                     .autocorrectionDisabled()
-                    .background(Color.white)
+                    .background(Color("PrimaryAppColor"))
                     .padding(12)
-                    .background(Color.white)
+                    .background(Color("PrimaryAppColor"))
                     .cornerRadius(12)
                     .onChange(of: username) {
                         errorMessage = ""
@@ -99,6 +110,11 @@ struct EditProfile: View {
         }
         .padding(.vertical, 30)
         .background(Color.black.opacity(0.05))
+        .onAppear {
+            if username.isEmpty {
+                username = storedUsername
+            }
+        }
         .onChange(of: imageSelection) { _, newValue in
             guard let newValue else { return }
             loadTransferable(from: newValue)
@@ -139,13 +155,25 @@ struct EditProfile: View {
             }
             
             do {
-                let imageURL = try await uploadImage()
+                if let avatarImage {
+                    let newPath = try await uploadImage()
+                    print(avatarImage)
+
+                    if !storedAvatarURL.isEmpty {
+                        ImageCache.shared.remove(forKey: storedAvatarURL)
+                    }
+                    
+                    storedAvatarURL = newPath!
+                    ImageCache.shared.remove(forKey: newPath!)
+                }
+                
+                storedUsername = username
 
                 let currentUser = try await supabase.auth.session.user
 
                 let updatedProfile = ProfileUpdate(
                     username: username,
-                    avatarURL: imageURL
+                    avatarURL: storedAvatarURL
                 )
 
                 try await supabase

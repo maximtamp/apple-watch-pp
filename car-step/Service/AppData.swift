@@ -358,6 +358,7 @@ class AppData {
         
         if isTodaysDate(today.date) {
             today.totalSteps = manager.getTodaySteps()
+            WatchConnectivitySync.shared.sendToday(today)
             Task {
                 await SupabaseService.shared.updateDay(today)
             }
@@ -372,7 +373,7 @@ class AppData {
             )
             context.insert(newDay)
             self.today = newDay
-            
+            WatchConnectivitySync.shared.sendToday(newDay)
             Task {
                 await SupabaseService.shared.insertDay(newDay)
             }
@@ -413,7 +414,6 @@ class AppData {
     
     func checkTodayQuests(context: ModelContext, quests: [Quest]) {
         let todayQuests = quests.filter { isTodaysDate($0.date) }
-        print(todayQuests)
         
         if todayQuests.count < 3 {
             setupQuests(context: context, quests: quests)

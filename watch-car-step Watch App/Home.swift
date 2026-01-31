@@ -21,6 +21,7 @@ struct Home: View {
                 (icon: "hand.point.up.left.fill", value: today.totalSteps - today.claimedSteps, color: Color.yellow.opacity(0.5)),
                 (icon: "bolt.fill", value: fuel.value, color: Color.red.opacity(0.5)),
             ]
+            
             VStack(alignment: .leading, spacing: 2) {
                 VStack(alignment: .leading, spacing: 4) {
                     ForEach(stats, id: \.icon) { stat in
@@ -52,7 +53,9 @@ struct Home: View {
             }
             .frame(maxWidth: .infinity, maxHeight: .infinity)
             .onAppear {
-                appData.updateTodaySteps(context: context, manager: manager, today: today)
+                Task {
+                    appData.updateTodaySteps(context: context, manager: manager, today: today)
+                }
             }
             .onChange(of: manager.steps) {
                 appData.updateTodaySteps(context: context, manager: manager, today: today)
