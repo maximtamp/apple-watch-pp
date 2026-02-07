@@ -57,6 +57,7 @@ struct Authorization: View {
                                 Text("You did not give us access!")
                                     .font(.title)
                                     .bold()
+                                    .multilineTextAlignment(.center)
                                 Text("You can still do this in settings. Go to Setting > Privacy and Security > Health > Car Step")
                                     .frame(maxWidth: 300)
                                     .multilineTextAlignment(.center)
@@ -90,7 +91,7 @@ struct Authorization: View {
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity)
         .foregroundStyle(Color("SecondaryAppColor"))
-        .background(Color("PrimaryAppColor"))
+        .background(Color("BackgroundAppColor"))
         .onAppear {
             Task {
                 isLoading = true

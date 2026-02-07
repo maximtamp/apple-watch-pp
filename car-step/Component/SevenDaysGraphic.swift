@@ -16,11 +16,12 @@ struct SevenDaysGraphic: View {
     @State private var lastSevenDaysTotalFuelUsed: Int = 0
     
     var body: some View {
+        
         VStack(alignment: .leading){
             Text("Last 7 Days")
                 .bold()
             
-            Chart(days.sorted { $0.date < $1.date }) { day in
+            Chart(lastSevenDays.sorted { $0.date < $1.date }) { day in
                 LineMark(x: .value("Date", day.date), y: .value("TotalSteps", day.totalSteps))
                     .foregroundStyle(by: .value("Type", "TotalSteps (\(lastSevenDaysTotalSteps))"))
                     .symbol(by: .value("Type", "TotalSteps (\(lastSevenDaysTotalSteps))"))
